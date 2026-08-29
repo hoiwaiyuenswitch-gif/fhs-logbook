@@ -1,0 +1,1890 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="食安記錄">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex,nofollow">
+<style>html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>食安巡查記錄簿</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+:root{
+  --ground:#EEF1F2; --surface:#FFFFFF; --surface-2:#F6F8F9; --surface-3:#EDF1F3;
+  --ink:#0F1A21; --ink-soft:#3B4C57; --muted:#657984;
+  --line:#D3DCE0; --line-soft:#E4EAED;
+  --accent:#1B5C77; --accent-ink:#FFFFFF; --accent-soft:#E2EDF2;
+  --amber:#8F5705; --amber-soft:#F8EDDA;
+  --critical:#8E2C24; --critical-soft:#F9E4E1;
+  --ok:#20624A; --ok-soft:#E0EFE7;
+  --shadow:0 1px 2px rgba(15,26,33,.06),0 10px 28px -20px rgba(15,26,33,.35);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0A1115; --surface:#131D23; --surface-2:#18242B; --surface-3:#1E2C34;
+    --ink:#E5EDF1; --ink-soft:#BCCBD4; --muted:#8B9EA9;
+    --line:#26343C; --line-soft:#1C282F;
+    --accent:#6FB0CD; --accent-ink:#08131A; --accent-soft:#16303C;
+    --amber:#DDA45C; --amber-soft:#2E2417;
+    --critical:#E0857B; --critical-soft:#33201D;
+    --ok:#6FBD97; --ok-soft:#152B22;
+    --shadow:0 1px 2px rgba(0,0,0,.5),0 10px 28px -20px rgba(0,0,0,.9);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0A1115; --surface:#131D23; --surface-2:#18242B; --surface-3:#1E2C34;
+  --ink:#E5EDF1; --ink-soft:#BCCBD4; --muted:#8B9EA9;
+  --line:#26343C; --line-soft:#1C282F;
+  --accent:#6FB0CD; --accent-ink:#08131A; --accent-soft:#16303C;
+  --amber:#DDA45C; --amber-soft:#2E2417;
+  --critical:#E0857B; --critical-soft:#33201D;
+  --ok:#6FBD97; --ok-soft:#152B22;
+  --shadow:0 1px 2px rgba(0,0,0,.5),0 10px 28px -20px rgba(0,0,0,.9);
+}
+
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--ground); color:var(--ink);
+  font-family:"Archivo","Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,-apple-system,sans-serif;
+  font-size:15px; line-height:1.6; -webkit-font-smoothing:antialiased;
+  padding-bottom:76px;
+}
+.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-variant-numeric:tabular-nums}
+.eyebrow{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:500}
+
+/* ---- shell ---- */
+header.top{
+  position:sticky;top:0;z-index:40;background:var(--surface);
+  border-bottom:1px solid var(--line);
+}
+.top-in{max-width:900px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:12px}
+.brand{font-weight:700;font-size:1.02rem;letter-spacing:-.01em;flex:1;display:flex;align-items:baseline;gap:9px}
+.brand small{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.12em;color:var(--muted);font-weight:400;text-transform:uppercase}
+main{max-width:900px;margin:0 auto;padding:18px 16px 40px}
+
+/* ---- bottom nav ---- */
+nav.tabs{
+  position:fixed;bottom:0;left:0;right:0;z-index:50;
+  background:var(--surface);border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom,0);
+}
+.tabs-in{max-width:900px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
+.tab{
+  appearance:none;border:0;background:none;cursor:pointer;
+  padding:10px 4px 12px;color:var(--muted);font:inherit;font-size:.76rem;font-weight:600;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  border-top:2px solid transparent;margin-top:-1px;position:relative;
+}
+.tab .ic{font-size:1.05rem;line-height:1}
+.tab[aria-selected="true"]{color:var(--accent);border-top-color:var(--accent)}
+.tab .badge{
+  position:absolute;transform:translate(16px,-4px);
+  background:var(--critical);color:#fff;border-radius:9px;font-size:.6rem;
+  padding:0 5px;line-height:15px;min-width:15px;text-align:center;font-family:"IBM Plex Mono",monospace;
+}
+
+/* ---- generic ---- */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:6px;box-shadow:var(--shadow)}
+.pad{padding:16px}
+.stack{display:flex;flex-direction:column;gap:14px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+h2{font-size:1.18rem;font-weight:700;margin:0 0 3px;letter-spacing:-.012em}
+h3{font-size:.95rem;font-weight:600;margin:0 0 8px}
+.sub{color:var(--muted);font-size:.84rem;margin:0 0 14px}
+
+label.f{display:block;margin-bottom:13px}
+label.f>.lab{display:block;font-size:.78rem;font-weight:600;color:var(--ink-soft);margin-bottom:5px;letter-spacing:.01em}
+label.f>.lab .req{color:var(--critical)}
+.hint{font-size:.73rem;color:var(--muted);margin-top:4px;line-height:1.45}
+input[type=text],input[type=number],input[type=date],input[type=datetime-local],select,textarea{
+  width:100%;font:inherit;font-size:.92rem;color:var(--ink);
+  background:var(--surface-2);border:1px solid var(--line);border-radius:5px;
+  padding:9px 11px;
+}
+textarea{resize:vertical;min-height:74px;line-height:1.55}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 16px) 50%,calc(100% - 11px) 50%;background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:32px}
+
+button{font:inherit;cursor:pointer}
+.btn{
+  appearance:none;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);
+  padding:9px 15px;border-radius:5px;font-size:.86rem;font-weight:600;
+}
+.btn:hover{background:var(--surface-3)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.pri:hover{filter:brightness(1.08)}
+.btn.danger{color:var(--critical);border-color:var(--critical)}
+.btn.sm{padding:6px 11px;font-size:.78rem}
+.btn.wide{width:100%;justify-content:center;text-align:center}
+
+/* segmented */
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{
+  flex:1 1 auto;min-width:74px;border:1px solid var(--line);background:var(--surface-2);
+  color:var(--ink-soft);border-radius:5px;padding:9px 8px;font-size:.83rem;font-weight:600;
+}
+.seg button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.seg.risk button[aria-pressed="true"][data-v="Critical"]{background:var(--critical);border-color:var(--critical);color:#fff}
+.seg.risk button[aria-pressed="true"][data-v="Major"]{background:var(--amber);border-color:var(--amber);color:#fff}
+.seg.risk button[aria-pressed="true"][data-v="Minor"]{background:var(--muted);border-color:var(--muted);color:#fff}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips button{
+  border:1px solid var(--line);background:var(--surface-2);color:var(--ink-soft);
+  border-radius:14px;padding:6px 12px;font-size:.8rem;font-weight:500;
+}
+.chips button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+
+/* toggle */
+.tog{display:flex;align-items:center;gap:11px;padding:11px 13px;border:1px solid var(--line);border-radius:5px;background:var(--surface-2);cursor:pointer;width:100%;text-align:left}
+.tog[aria-pressed="true"]{background:var(--critical-soft);border-color:var(--critical)}
+.tog .knob{width:38px;height:22px;border-radius:11px;background:var(--line);position:relative;flex:none;transition:background .15s}
+.tog .knob::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:var(--surface);transition:transform .15s}
+.tog[aria-pressed="true"] .knob{background:var(--critical)}
+.tog[aria-pressed="true"] .knob::after{transform:translateX(16px)}
+.tog .tt{font-size:.86rem;font-weight:600}
+.tog .td{font-size:.73rem;color:var(--muted);line-height:1.4}
+
+/* pills */
+.pill{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.05em;padding:2px 7px;border-radius:3px;border:1px solid;white-space:nowrap;font-variant-numeric:tabular-nums}
+.pill.crit{background:var(--critical-soft);color:var(--critical);border-color:var(--critical)}
+.pill.maj{background:var(--amber-soft);color:var(--amber);border-color:var(--amber)}
+.pill.min{background:var(--surface-3);color:var(--muted);border-color:var(--line)}
+.pill.ok{background:var(--ok-soft);color:var(--ok);border-color:var(--ok)}
+.pill.info{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+
+/* stat tiles */
+.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media(min-width:640px){.tiles{grid-template-columns:repeat(4,1fr)}}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px 13px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.tile::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--line)}
+.tile.t-crit::before{background:var(--critical)}
+.tile.t-warn::before{background:var(--amber)}
+.tile.t-ok::before{background:var(--ok)}
+.tile.t-info::before{background:var(--accent)}
+.tile .v{font-family:"IBM Plex Mono",monospace;font-size:1.65rem;font-weight:500;line-height:1.1;font-variant-numeric:tabular-nums}
+.tile .l{font-size:.72rem;color:var(--muted);margin-top:2px}
+
+/* bars */
+.bars{display:flex;flex-direction:column;gap:7px}
+.bar{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;font-size:.82rem}
+.bar .track{grid-column:1/-1;height:6px;background:var(--surface-3);border-radius:3px;overflow:hidden}
+.bar .fill{height:100%;background:var(--accent);border-radius:3px}
+.bar .n{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--muted)}
+
+/* list */
+.item{
+  display:block;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);
+  border-left:3px solid var(--line);border-radius:5px;padding:12px 14px;box-shadow:var(--shadow);
+}
+.item.sv-Critical{border-left-color:var(--critical)}
+.item.sv-Major{border-left-color:var(--amber)}
+.item.sv-Minor{border-left-color:var(--muted)}
+.item.sv-M2{border-left-color:var(--accent)}
+.item .ih{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:5px}
+.item .it{font-size:.9rem;font-weight:600;line-height:1.4;margin:0 0 3px}
+.item .im{font-size:.73rem;color:var(--muted);font-family:"IBM Plex Mono",monospace}
+.overdue{color:var(--critical);font-weight:600}
+
+/* banner */
+.banner{border:1px solid var(--amber);background:var(--amber-soft);color:var(--amber);border-radius:6px;padding:11px 14px;font-size:.83rem;display:flex;gap:10px;align-items:center}
+.banner .btn{background:transparent;border-color:var(--amber);color:var(--amber)}
+
+/* photos */
+.thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.thumb{position:relative;width:74px;height:74px;border-radius:5px;overflow:hidden;border:1px solid var(--line)}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb button{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.62);color:#fff;border:0;border-radius:50%;width:19px;height:19px;font-size:.7rem;line-height:19px;padding:0;text-align:center}
+.thumb-tag{position:absolute;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);color:#fff;font-family:"IBM Plex Mono",monospace;font-size:.56rem;text-align:center;padding:1px 0;letter-spacing:.02em}
+
+/* sheet / modal */
+.sheet{position:fixed;inset:0;z-index:80;background:rgba(8,15,19,.5);display:flex;align-items:flex-end;justify-content:center}
+@media(min-width:640px){.sheet{align-items:center}}
+.sheet-in{background:var(--surface);width:100%;max-width:640px;max-height:88vh;overflow:auto;border-radius:10px 10px 0 0;border:1px solid var(--line)}
+@media(min-width:640px){.sheet-in{border-radius:10px}}
+.sheet-hd{position:sticky;top:0;background:var(--surface);border-bottom:1px solid var(--line);padding:14px 16px;display:flex;align-items:center;gap:10px}
+.sheet-hd h3{margin:0;flex:1}
+.sheet-bd{padding:16px}
+
+/* toast */
+#toast{position:fixed;left:50%;bottom:88px;transform:translateX(-50%);z-index:90;background:var(--ink);color:var(--ground);padding:10px 16px;border-radius:6px;font-size:.85rem;font-weight:600;box-shadow:var(--shadow);max-width:90vw}
+
+.empty{text-align:center;color:var(--muted);padding:38px 16px;font-size:.88rem}
+.divider{height:1px;background:var(--line-soft);margin:16px 0}
+details.crit{border:1px solid var(--line);border-radius:5px;background:var(--surface-2);margin-top:8px}
+details.crit summary{padding:9px 12px;font-size:.79rem;font-weight:600;color:var(--ink-soft);cursor:pointer}
+details.crit .db{padding:0 12px 12px;font-size:.79rem;line-height:1.6;color:var(--ink-soft)}
+details.crit .db b{color:var(--ink)}
+.gate-wrap{position:fixed;inset:0;z-index:200;background:var(--ground);display:flex;align-items:center;justify-content:center;padding:24px}
+.gate-card{background:var(--surface);border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow);padding:26px 24px;width:100%;max-width:390px}
+.gate-sub{color:var(--muted);font-size:.86rem;margin:0 0 14px}
+.gate-msg{margin-top:10px;font-size:.83rem;color:var(--critical);font-weight:600}
+.gate-note{margin:14px 0 0;font-size:.72rem;color:var(--muted);line-height:1.55}
+body.locked > header.top, body.locked > main, body.locked > nav.tabs{display:none}
+.tw{overflow-x:auto}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+
+<div id="gate" class="gate-wrap" hidden>
+  <form class="gate-card" id="gateForm" autocomplete="off">
+    <div class="eyebrow">受密碼保護</div>
+    <h2 style="margin:8px 0 4px">食安巡查記錄簿</h2>
+    <p class="gate-sub">請輸入通行密碼。</p>
+    <input type="password" id="gatePw" placeholder="密碼" autocomplete="current-password" aria-label="密碼">
+    <div id="gateMsg" class="gate-msg" hidden></div>
+    <button type="submit" class="btn pri wide" style="margin-top:12px">進入</button>
+    <p class="gate-note">此為前端密碼閘，用途係阻擋無關人士隨手打開，並非真正的存取控制。真正保密請用伺服器層密碼（見說明）。你的記錄只存喺你自己部機。</p>
+  </form>
+</div>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand">食安巡查記錄簿 <small id="ctxLabel">FHS Logbook</small></div>
+    <button class="btn sm" id="btnTheme" title="切換主題">◐</button>
+  </div>
+</header>
+
+<main>
+  <!-- ================= 記錄 ================= -->
+  <section id="v-new">
+    <div id="backupBanner" hidden></div>
+    <div class="seg" style="margin:2px 0 16px" id="typeSeg">
+      <button data-t="M1" aria-pressed="true">M1 食安發現</button>
+      <button data-t="M2" aria-pressed="false">M2 流程觀察</button>
+    </div>
+    <form id="frm" class="card pad" autocomplete="off">
+      <div class="row" style="gap:10px;margin-bottom:13px">
+        <label class="f" style="flex:1;min-width:150px;margin:0">
+          <span class="lab">業務單位 <span class="req">*</span></span>
+          <select id="f_unit" required></select>
+        </label>
+        <label class="f" style="flex:1;min-width:150px;margin:0">
+          <span class="lab">場地 <span class="req">*</span></span>
+          <select id="f_area" required></select>
+        </label>
+      </div>
+
+      <!-- M1 -->
+      <div id="blkM1">
+        <label class="f">
+          <span class="lab">GHP 分類 <span class="req">*</span></span>
+          <select id="f_cat"></select>
+        </label>
+
+        <label class="f">
+          <span class="lab">觀察事實 <span class="req">*</span></span>
+          <textarea id="f_obs" placeholder="只寫睇到／量到嘅嘢，唔寫判斷。例：3 號凍櫃中層雞肉中心溫度 9.2°C，標籤顯示前一日收貨。"></textarea>
+          <span class="hint">寫事實唔寫判斷 — 呢啲記錄日後可能成為舉證材料。</span>
+        </label>
+
+        <div class="card pad" style="background:var(--surface-2);box-shadow:none;margin-bottom:13px">
+          <span class="eyebrow">量測（選填）</span>
+          <div class="row" style="margin-top:9px;gap:8px">
+            <select id="m_kind" style="flex:1.2;min-width:104px">
+              <option value="">不適用</option>
+              <option value="溫度">溫度 °C</option>
+              <option value="時間">時間 分鐘</option>
+              <option value="pH">pH</option>
+              <option value="Aw">水活性 Aw</option>
+              <option value="其他">其他</option>
+            </select>
+            <input type="number" step="any" id="m_val" placeholder="實測" style="flex:1;min-width:76px">
+            <select id="m_op" style="flex:.8;min-width:64px">
+              <option value="&lt;=">≤</option>
+              <option value="&gt;=">≥</option>
+            </select>
+            <input type="number" step="any" id="m_lim" placeholder="標準" style="flex:1;min-width:76px">
+          </div>
+          <div id="m_res" class="hint" style="margin-top:8px"></div>
+        </div>
+
+        <label class="f">
+          <span class="lab">風險分級 <span class="req">*</span></span>
+          <div class="seg risk" id="riskSeg">
+            <button type="button" data-v="Critical" aria-pressed="false">Critical</button>
+            <button type="button" data-v="Major" aria-pressed="true">Major</button>
+            <button type="button" data-v="Minor" aria-pressed="false">Minor</button>
+          </div>
+          <details class="crit">
+            <summary>分級準則（點擊展開）</summary>
+            <div class="db">
+              <p style="margin:0 0 8px"><b>Critical</b> — 可即時導致食源性疾病或嚴重傷害，或即時違反法定要求。例：即食食品與生肉交叉污染、高危食品長時間處於 4–60°C、化學品混入食品、已申報以外之過敏原、蟲鼠出現於食品接觸面。<br><span style="color:var(--critical)">→ 須即時叫停／隔離，24 小時內矯正並通報。</span></p>
+              <p style="margin:0 0 8px"><b>Major</b> — 未即時致病，但控制系統已失效；重複發生會升級為 Critical。例：雪櫃溫度超標而食品仍安全、洗手設施缺皂液、監控記錄缺失、SOP 未跟從但無即時風險。<br><span style="color:var(--amber)">→ 7 日內矯正。</span></p>
+              <p style="margin:0"><b>Minor</b> — 良好規範偏差，無即時食安影響。例：標籤字跡模糊、地面積水、儲存未離地但無污染風險。<br>→ 30 日內矯正。</p>
+            </div>
+          </details>
+        </label>
+
+        <label class="f">
+          <span class="lab">現場處置</span>
+          <button type="button" class="tog" id="f_stop" aria-pressed="false">
+            <span class="knob"></span>
+            <span><span class="tt">行使即時叫停權</span><br><span class="td">停止有關工序／隔離產品。一經記錄即列入升級名單。</span></span>
+          </button>
+        </label>
+
+        <label class="f">
+          <span class="lab">即時措施</span>
+          <textarea id="f_imm" style="min-height:56px" placeholder="現場即刻做咗乜。例：即時棄置該批雞肉、通知廚房主管、貼上隔離標籤。"></textarea>
+        </label>
+
+        <div class="divider"></div>
+
+        <label class="f">
+          <span class="lab">矯正措施 <span class="req">*</span></span>
+          <textarea id="f_ca" style="min-height:56px" placeholder="要做乜先至唔會再發生。"></textarea>
+        </label>
+        <div class="row" style="gap:10px">
+          <label class="f" style="flex:1;min-width:140px">
+            <span class="lab">負責人 <span class="req">*</span></span>
+            <input type="text" id="f_owner" placeholder="職位或姓名">
+            <span class="hint">冇 owner 嘅 CAPA 等於冇 CAPA。</span>
+          </label>
+          <label class="f" style="flex:1;min-width:140px">
+            <span class="lab">限期</span>
+            <input type="date" id="f_due">
+            <span class="hint">按風險自動填，可改。</span>
+          </label>
+        </div>
+        <label class="f">
+          <span class="lab">預防措施（選填）</span>
+          <textarea id="f_pa" style="min-height:52px" placeholder="系統性措施：改 SOP、加培訓、改設備、改流程。"></textarea>
+        </label>
+        <div id="repeatHint" class="hint" hidden></div>
+      </div>
+
+      <!-- M2 -->
+      <div id="blkM2" hidden>
+        <div class="row" style="gap:10px">
+          <label class="f" style="flex:2;min-width:170px">
+            <span class="lab">流程名稱 <span class="req">*</span></span>
+            <input type="text" id="p_name" placeholder="例：自助餐熱盤補充流程">
+          </label>
+          <label class="f" style="flex:1;min-width:88px">
+            <span class="lab">步驟編號</span>
+            <input type="text" id="p_step" placeholder="例：4.2">
+          </label>
+        </div>
+        <label class="f">
+          <span class="lab">實際做法（現場睇到）<span class="req">*</span></span>
+          <textarea id="p_actual" placeholder="現場真係點做。"></textarea>
+        </label>
+        <label class="f">
+          <span class="lab">書面 SOP 要求</span>
+          <textarea id="p_doc" style="min-height:56px" placeholder="書面文件話點做；如無文件請填「無」。"></textarea>
+        </label>
+        <label class="f">
+          <span class="lab">落差類型 <span class="req">*</span></span>
+          <select id="p_gap">
+            <option>無 SOP</option>
+            <option>SOP 過時</option>
+            <option>有 SOP 但唔跟</option>
+            <option>跟咗但無效</option>
+            <option>實際做法優於 SOP</option>
+          </select>
+          <span class="hint">「實際做法優於 SOP」最易漏記，但係最好嘅改善素材。</span>
+        </label>
+        <label class="f">
+          <span class="lab">涉及危害</span>
+          <div class="chips" id="hazChips">
+            <button type="button" data-v="生物 B" aria-pressed="false">生物 B</button>
+            <button type="button" data-v="化學 C" aria-pressed="false">化學 C</button>
+            <button type="button" data-v="物理 P" aria-pressed="false">物理 P</button>
+            <button type="button" data-v="過敏原 A" aria-pressed="false">過敏原 A</button>
+          </div>
+        </label>
+        <label class="f">
+          <span class="lab">控制點候選</span>
+          <button type="button" class="tog" id="p_ccp" aria-pressed="false" style="border-color:var(--line)">
+            <span class="knob"></span>
+            <span><span class="tt">標記為 CCP / OPRP 候選</span><br><span class="td">日後做危害分析時優先審視呢一步。</span></span>
+          </button>
+        </label>
+        <label class="f">
+          <span class="lab">後續處理 <span class="req">*</span></span>
+          <select id="p_handoff">
+            <option>只作記錄</option>
+            <option>轉為 M1 食安發現</option>
+            <option>轉為文件需求（改／寫 SOP）</option>
+          </select>
+        </label>
+      </div>
+
+      <label class="f">
+        <span class="lab">相片（最多 12 張）</span>
+        <input type="file" id="f_photo" accept="image/*" multiple style="font-size:.82rem;background:none;border:0;padding:0">
+        <div class="thumbs" id="thumbs"></div>
+        <span class="hint" id="photoNote"></span>
+      </label>
+
+      <button type="submit" class="btn pri wide" style="margin-top:6px">儲存記錄</button>
+      <div class="hint" style="text-align:center;margin-top:9px">資料只存喺呢部裝置。每星期記得匯出備份。</div>
+    </form>
+  </section>
+
+  <!-- ================= 待辦 ================= -->
+  <section id="v-open" hidden>
+    <h2>待辦 CAPA</h2>
+    <p class="sub">按逾期程度排序。關閉一項需要填驗證。</p>
+    <div class="seg" id="openFilter" style="margin-bottom:14px">
+      <button data-f="all" aria-pressed="true">全部</button>
+      <button data-f="overdue" aria-pressed="false">逾期</button>
+      <button data-f="critical" aria-pressed="false">Critical</button>
+    </div>
+    <div class="stack" id="openList"></div>
+  </section>
+
+  <!-- ================= 分析 ================= -->
+  <section id="v-dash" hidden>
+    <h2>分析</h2>
+    <p class="sub" id="dashRange"></p>
+    <div class="seg" id="dashRangeSeg" style="margin-bottom:14px">
+      <button data-d="30" aria-pressed="true">近 30 日</button>
+      <button data-d="90" aria-pressed="false">近 90 日</button>
+      <button data-d="0" aria-pressed="false">全部</button>
+    </div>
+    <div class="tiles" id="tiles"></div>
+    <div class="card pad" style="margin-top:16px">
+      <h3>按 GHP 分類</h3>
+      <div class="bars" id="barCat"></div>
+    </div>
+    <div class="card pad" style="margin-top:14px">
+      <h3>按場地</h3>
+      <div class="bars" id="barArea"></div>
+    </div>
+    <div class="card pad" style="margin-top:14px">
+      <h3>重複發生（同單位＋場地＋分類 ≥2 次）</h3>
+      <div class="bars" id="barRepeat"></div>
+      <p class="hint" style="margin-top:10px">重複項係月報最有說服力嘅一格 — 佢證明問題係系統性而唔係個別事件。</p>
+    </div>
+    <div class="card pad" style="margin-top:14px">
+      <h3>流程落差（M2）</h3>
+      <div class="bars" id="barGap"></div>
+    </div>
+    <button class="btn wide" id="btnReport" style="margin-top:16px">產生月度摘要文字</button>
+  </section>
+
+  <!-- ================= 資料 ================= -->
+  <section id="v-data" hidden>
+    <h2>資料</h2>
+    <p class="sub">本工具唔會將資料送去任何伺服器。備份係你自己責任。</p>
+
+    <div class="card pad" style="margin-bottom:14px">
+      <span class="eyebrow">儲存狀態</span>
+      <div id="storeStatus" style="margin-top:9px"></div>
+    </div>
+
+
+    <div class="card pad" style="margin-bottom:14px">
+      <span class="eyebrow">更改通行密碼</span>
+      <div class="hint" style="margin:6px 0 9px">輸入新密碼，下面會產生一行文字。用文字編輯器打開本檔案，換走原本嗰行 <code>var FHS_GATE_HASH = "…";</code>，再重新上傳。</div>
+      <input type="text" id="newPw" placeholder="新密碼">
+      <button class="btn sm" id="btnMakeHash" style="margin-top:9px">產生</button>
+      <textarea id="hashOut" readonly style="margin-top:9px;min-height:64px;font-size:.78rem" hidden></textarea>
+    </div>
+    <div class="card pad" style="margin-bottom:14px">
+      <span class="eyebrow">電腦資料夾同步</span>
+      <div id="fsBox" style="margin-top:9px"></div>
+    </div>
+
+    <div class="card pad" style="margin-bottom:14px">
+      <span class="eyebrow">相片設定</span>
+      <button type="button" class="tog" id="togOriginal" aria-pressed="true" style="margin-top:9px;border-color:var(--line)">
+        <span class="knob"></span>
+        <span><span class="tt">保留原相</span><br><span class="td">關閉則只存 1600px 壓縮版，慳好多空間。已影咗嘅相唔受影響。</span></span>
+      </button>
+    </div>
+
+    <div class="card pad stack">
+      <div>
+        <span class="eyebrow">備份</span>
+        <div class="row" style="margin-top:9px">
+          <button class="btn pri" id="btnExpJson">匯出 JSON 全備份（含原相）</button>
+          <button class="btn" id="btnExpLite">輕量備份</button>
+          <button class="btn" id="btnExpCsv">匯出 CSV</button>
+        </div>
+        <div class="hint" id="lastExp" style="margin-top:9px"></div>
+      </div>
+      <div class="divider" style="margin:2px 0"></div>
+      <div>
+        <span class="eyebrow">還原 / 合併</span>
+        <div class="row" style="margin-top:9px">
+          <input type="file" id="impFile" accept=".json,application/json" style="font-size:.82rem;background:none;border:0;padding:0">
+        </div>
+        <div class="hint">匯入會按 ID 合併，唔會覆蓋現有記錄。喺桌面匯入手機匯出嘅檔就可以做分析。</div>
+      </div>
+    </div>
+
+    <div class="card pad" style="margin-top:14px">
+      <span class="eyebrow">業務單位清單</span>
+      <div class="hint" style="margin:6px 0 9px">一行一個。改完按儲存。</div>
+      <textarea id="unitsBox" style="min-height:132px;font-size:.86rem"></textarea>
+      <button class="btn sm" id="btnSaveUnits" style="margin-top:9px">儲存清單</button>
+    </div>
+
+    <div class="card pad" style="margin-top:14px">
+      <span class="eyebrow">全部記錄</span>
+      <div class="hint" style="margin:6px 0 10px" id="recCount"></div>
+      <div class="stack" id="allList"></div>
+    </div>
+
+    <div class="card pad" style="margin-top:14px">
+      <span class="eyebrow">危險區</span>
+      <div class="hint" style="margin:6px 0 10px">清空前請先匯出備份。此操作無法復原。</div>
+      <button class="btn danger sm" id="btnWipe">清空所有記錄</button>
+    </div>
+
+    <p class="hint" style="margin-top:20px;text-align:center">
+      食安巡查記錄簿 · 公開版<br>
+      資料只存喺你自己部機，唔會上傳去任何伺服器，其他人睇唔到你的記錄。<br>
+      業務單位清單可喺上面自行修改。請勿記錄可識別員工姓名或客人資料。
+    </p>
+  </section>
+</main>
+
+<nav class="tabs">
+  <div class="tabs-in" role="tablist">
+    <button class="tab" role="tab" data-v="new" aria-selected="true"><span class="ic">✎</span>記錄</button>
+    <button class="tab" role="tab" data-v="open" aria-selected="false"><span class="ic">◷</span>待辦<span class="badge" id="tabBadge" hidden>0</span></button>
+    <button class="tab" role="tab" data-v="dash" aria-selected="false"><span class="ic">▤</span>分析</button>
+    <button class="tab" role="tab" data-v="data" aria-selected="false"><span class="ic">⛁</span>資料</button>
+  </div>
+</nav>
+
+<div id="sheetHost"></div>
+<div id="toast" hidden></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------------- constants ---------------- */
+var AREAS = ["收貨區","乾貨倉","凍房 (-18°C)","冷藏庫 (0-4°C)","準備／切配區","烹調區","擺盤／出餐","自助餐檯","洗滌區","員工設施","廢物存放","後巷／外圍","烘焙生產線","包裝區"];
+var CATS = ["溫度控制","交叉污染","個人衞生","清潔消毒","蟲害控制","設施與保養","標示與追溯","過敏原管理","廢物管理","收貨驗收","解凍與冷卻","食品接觸物料"];
+var DEFAULT_UNITS = ["酒店 — 主廚房","餐廳 A","餐廳 B","自助餐廳","餅房 / 烘焙廠","中央廚房","宴會廚房"];
+var DUE_DAYS = {Critical:1, Major:7, Minor:30};
+
+/* ---------------- storage ---------------- */
+var LS = { get:function(k,d){ try{ var v=localStorage.getItem(k); return v==null?d:JSON.parse(v);}catch(e){return d;} },
+           set:function(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); return true;}catch(e){return false;} } };
+
+var DB=null, memFallback=false, records=[];
+
+function openDB(){
+  return new Promise(function(res){
+    try{
+      var rq = indexedDB.open("fhs_logbook",2);
+      rq.onupgradeneeded=function(e){
+        var db=e.target.result;
+        if(!db.objectStoreNames.contains("records")) db.createObjectStore("records",{keyPath:"id"});
+        if(!db.objectStoreNames.contains("meta")) db.createObjectStore("meta");
+      };
+      rq.onsuccess=function(e){ DB=e.target.result; res(true); };
+      rq.onerror=function(){ memFallback=true; res(false); };
+      setTimeout(function(){ if(!DB){ memFallback=true; res(false);} },3000);
+    }catch(e){ memFallback=true; res(false); }
+  });
+}
+function dbAll(){
+  return new Promise(function(res){
+    if(!DB){ res(LS.get("fhs_records",[])); return; }
+    try{
+      var tx=DB.transaction("records","readonly"), st=tx.objectStore("records"), rq=st.getAll();
+      rq.onsuccess=function(){ res(rq.result||[]); };
+      rq.onerror=function(){ res(LS.get("fhs_records",[])); };
+    }catch(e){ res(LS.get("fhs_records",[])); }
+  });
+}
+function dbPut(rec){
+  return new Promise(function(res){
+    if(!DB){ var a=LS.get("fhs_records",[]); var i=a.findIndex(function(x){return x.id===rec.id;}); if(i>=0)a[i]=rec; else a.push(rec); LS.set("fhs_records",a); res(true); return; }
+    try{
+      var tx=DB.transaction("records","readwrite");
+      tx.objectStore("records").put(rec);
+      tx.oncomplete=function(){res(true);}; tx.onerror=function(){res(false);};
+    }catch(e){ res(false); }
+  });
+}
+function dbClear(){
+  return new Promise(function(res){
+    LS.set("fhs_records",[]);
+    if(!DB){ res(true); return; }
+    try{ var tx=DB.transaction("records","readwrite"); tx.objectStore("records").clear(); tx.oncomplete=function(){res(true);}; tx.onerror=function(){res(false);}; }
+    catch(e){ res(false); }
+  });
+}
+
+function metaGet(k){
+  return new Promise(function(res){
+    if(!DB||!DB.objectStoreNames.contains("meta")){ res(null); return; }
+    try{ var rq=DB.transaction("meta","readonly").objectStore("meta").get(k);
+         rq.onsuccess=function(){res(rq.result||null);}; rq.onerror=function(){res(null);}; }
+    catch(e){ res(null); }
+  });
+}
+function metaPut(k,v){
+  return new Promise(function(res){
+    if(!DB||!DB.objectStoreNames.contains("meta")){ res(false); return; }
+    try{ var tx=DB.transaction("meta","readwrite"); tx.objectStore("meta").put(v,k);
+         tx.oncomplete=function(){res(true);}; tx.onerror=function(){res(false);}; }
+    catch(e){ res(false); }
+  });
+}
+
+/* ---------------- helpers ---------------- */
+function $(s){ return document.querySelector(s); }
+function el(t,c,x){ var e=document.createElement(t); if(c)e.className=c; if(x!=null)e.textContent=x; return e; }
+function esc(s){ return String(s==null?"":s); }
+function todayISO(){ var d=new Date(); return d.toISOString().slice(0,10); }
+function addDays(n){ var d=new Date(); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); }
+function fmtDate(iso){ return iso? iso.slice(0,10).replace(/-/g,"/") : ""; }
+function daysBetween(a,b){ return Math.round((new Date(b)-new Date(a))/86400000); }
+function toast(msg){
+  var t=$("#toast"); t.textContent=msg; t.hidden=false;
+  clearTimeout(t._t); t._t=setTimeout(function(){ t.hidden=true; },2600);
+}
+function newId(pfx){
+  var d=new Date(), s=d.getFullYear()+String(d.getMonth()+1).padStart(2,"0")+String(d.getDate()).padStart(2,"0");
+  return pfx+"-"+s+"-"+Math.random().toString(36).slice(2,6).toUpperCase();
+}
+
+/* ---------------- theme ---------------- */
+var themeMode = LS.get("fhs_theme",null);
+if(themeMode) document.documentElement.setAttribute("data-theme",themeMode);
+$("#btnTheme").addEventListener("click",function(){
+  var cur=document.documentElement.getAttribute("data-theme");
+  var next = cur==="dark" ? "light" : cur==="light" ? null : "dark";
+  if(next){ document.documentElement.setAttribute("data-theme",next); } else { document.documentElement.removeAttribute("data-theme"); }
+  LS.set("fhs_theme",next);
+});
+
+/* ---------------- tabs ---------------- */
+var views={new:$("#v-new"),open:$("#v-open"),dash:$("#v-dash"),data:$("#v-data")};
+Array.prototype.forEach.call(document.querySelectorAll(".tab"),function(b){
+  b.addEventListener("click",function(){
+    Array.prototype.forEach.call(document.querySelectorAll(".tab"),function(x){ x.setAttribute("aria-selected", x===b?"true":"false"); });
+    Object.keys(views).forEach(function(k){ views[k].hidden = (k!==b.dataset.v); });
+    window.scrollTo(0,0);
+    if(b.dataset.v==="open") renderOpen();
+    if(b.dataset.v==="dash") renderDash();
+    if(b.dataset.v==="data") renderData();
+  });
+});
+
+/* ---------------- form state ---------------- */
+var state={ type:"M1", risk:"Major", stop:false, ccp:false, hazards:[], photos:[] };
+
+function fillSelect(sel,arr){
+  sel.innerHTML="";
+  arr.forEach(function(v){ var o=document.createElement("option"); o.value=v; o.textContent=v; sel.appendChild(o); });
+}
+function getUnits(){ return LS.get("fhs_units",DEFAULT_UNITS); }
+
+function initForm(){
+  fillSelect($("#f_unit"),getUnits());
+  fillSelect($("#f_area"),AREAS);
+  fillSelect($("#f_cat"),CATS);
+  $("#f_due").value = addDays(DUE_DAYS[state.risk]);
+}
+
+$("#typeSeg").addEventListener("click",function(e){
+  var b=e.target.closest("button"); if(!b) return;
+  state.type=b.dataset.t;
+  Array.prototype.forEach.call(this.querySelectorAll("button"),function(x){ x.setAttribute("aria-pressed", x===b?"true":"false"); });
+  $("#blkM1").hidden = state.type!=="M1";
+  $("#blkM2").hidden = state.type!=="M2";
+});
+
+$("#riskSeg").addEventListener("click",function(e){
+  var b=e.target.closest("button"); if(!b) return;
+  state.risk=b.dataset.v;
+  Array.prototype.forEach.call(this.querySelectorAll("button"),function(x){ x.setAttribute("aria-pressed", x===b?"true":"false"); });
+  $("#f_due").value = addDays(DUE_DAYS[state.risk]);
+});
+
+$("#f_stop").addEventListener("click",function(){ state.stop=!state.stop; this.setAttribute("aria-pressed",state.stop?"true":"false"); });
+$("#p_ccp").addEventListener("click",function(){ state.ccp=!state.ccp; this.setAttribute("aria-pressed",state.ccp?"true":"false"); });
+$("#hazChips").addEventListener("click",function(e){
+  var b=e.target.closest("button"); if(!b) return;
+  var v=b.dataset.v, i=state.hazards.indexOf(v);
+  if(i>=0) state.hazards.splice(i,1); else state.hazards.push(v);
+  b.setAttribute("aria-pressed", i>=0?"false":"true");
+});
+
+/* measurement auto-verdict */
+function evalMeasure(){
+  var k=$("#m_kind").value, v=parseFloat($("#m_val").value), op=$("#m_op").value, lim=parseFloat($("#m_lim").value);
+  var box=$("#m_res");
+  if(!k || isNaN(v) || isNaN(lim)){ box.innerHTML=""; return null; }
+  var pass = op==="<=" ? (v<=lim) : (v>=lim);
+  box.innerHTML = '<span class="pill '+(pass?"ok":"crit")+'">'+(pass?"合格":"超標")+'</span> <span style="color:var(--muted)">實測 '+v+' / 標準 '+(op==="<="?"≤":"≥")+' '+lim+'</span>';
+  return {kind:k,value:v,op:op,limit:lim,pass:pass};
+}
+["m_kind","m_val","m_op","m_lim"].forEach(function(id){ $("#"+id).addEventListener("input",evalMeasure); $("#"+id).addEventListener("change",evalMeasure); });
+
+/* repeat detection */
+function checkRepeat(){
+  if(state.type!=="M1") return;
+  var u=$("#f_unit").value, a=$("#f_area").value, c=$("#f_cat").value;
+  var prior = records.filter(function(r){ return r.type==="M1" && r.unit===u && r.area===a && r.cat===c; });
+  var h=$("#repeatHint");
+  if(prior.length){
+    h.hidden=false;
+    h.innerHTML='<span class="pill maj">重複</span> 同一單位／場地／分類之前已有 <b>'+prior.length+'</b> 宗記錄（最近 '+fmtDate(prior[prior.length-1].createdAt)+'）。考慮升級風險分級，或喺預防措施處理系統性成因。';
+  } else h.hidden=true;
+}
+["f_unit","f_area","f_cat"].forEach(function(id){ $("#"+id).addEventListener("change",checkRepeat); });
+
+/* ---------------- photos: 原相 + 縮圖 ---------------- */
+function phThumb(p){ return (typeof p==="string")? p : ((p&&p.thumb)||""); }
+function phBlob(p){
+  if(typeof p==="string") return dataUrlToBlob(p);
+  if(p&&p.blob) return p.blob;
+  return dataUrlToBlob(phThumb(p));
+}
+function phFreed(p){ return !!(p && typeof p!=="string" && p.freed && !p.blob); }
+function phFileName(r,p,i){ return r.id+"_"+(i+1)+(phFreed(p)?"_縮圖":"")+"."+phExt(p); }
+function phExt(p){
+  if(phFreed(p)) return "jpg";
+  var t=(p&&p.type)||"image/jpeg";
+  if(t.indexOf("png")>=0) return "png";
+  if(t.indexOf("heic")>=0||t.indexOf("heif")>=0) return "heic";
+  if(t.indexOf("webp")>=0) return "webp";
+  return "jpg";
+}
+function phIsOriginal(p){ return !!(p&&typeof p!=="string"&&p.blob&&p.original); }
+function phSize(p){ return (p&&p.size)||0; }
+function fmtBytes(n){ return n>=1048576? (n/1048576).toFixed(1)+" MB" : Math.round(n/1024)+" KB"; }
+
+function drawTo(img,max,type,q){
+  var w=img.width,h=img.height;
+  if(w>h && w>max){ h=Math.round(h*max/w); w=max; }
+  else if(h>=w && h>max){ w=Math.round(w*max/h); h=max; }
+  var cv=document.createElement("canvas"); cv.width=w||1; cv.height=h||1;
+  cv.getContext("2d").drawImage(img,0,0,cv.width,cv.height);
+  return cv;
+}
+function processPhoto(file){
+  return new Promise(function(res){
+    var keep = LS.get("fhs_keepOriginal",true);
+    var fr=new FileReader();
+    fr.onload=function(){
+      var img=new Image();
+      img.onload=function(){
+        var thumb;
+        try{ thumb = drawTo(img,520,"image/jpeg",0.6).toDataURL("image/jpeg",0.6); }
+        catch(e){ thumb = fr.result; }
+        if(keep){
+          res({thumb:thumb, blob:file, name:file.name||"photo", type:file.type||"image/jpeg", size:file.size||0, original:true});
+        } else {
+          try{
+            drawTo(img,1600,"image/jpeg",0.8).toBlob(function(bl){
+              res({thumb:thumb, blob:bl||file, name:file.name||"photo", type:"image/jpeg", size:(bl&&bl.size)||file.size||0, original:false});
+            },"image/jpeg",0.8);
+          }catch(e){
+            res({thumb:thumb, blob:file, name:file.name||"photo", type:file.type||"image/jpeg", size:file.size||0, original:true});
+          }
+        }
+      };
+      img.onerror=function(){ res({thumb:"", blob:file, name:file.name||"photo", type:file.type||"application/octet-stream", size:file.size||0, original:true}); };
+      img.src=fr.result;
+    };
+    fr.onerror=function(){ res(null); };
+    fr.readAsDataURL(file);
+  });
+}
+$("#f_photo").addEventListener("change",function(){
+  var files=Array.prototype.slice.call(this.files||[]);
+  var room=12-state.photos.length;
+  if(room<=0){ toast("最多 12 張相片"); this.value=""; return; }
+  files.slice(0,room).reduce(function(p,f){
+    return p.then(function(){ return processPhoto(f).then(function(o){ if(o) state.photos.push(o); }); });
+  },Promise.resolve()).then(function(){ renderThumbs(); });
+  this.value="";
+});
+function renderThumbs(){
+  var box=$("#thumbs"); box.innerHTML="";
+  state.photos.forEach(function(p,i){
+    var d=el("div","thumb"); var im=document.createElement("img"); im.src=phThumb(p); im.alt="相片 "+(i+1);
+    var b=el("button",null,"×"); b.type="button"; b.setAttribute("aria-label","移除相片 "+(i+1));
+    b.addEventListener("click",function(){ state.photos.splice(i,1); renderThumbs(); });
+    d.appendChild(im); d.appendChild(b);
+    if(phSize(p)){ var tag=el("span","thumb-tag", phFreed(p)? "Drive" : ((phIsOriginal(p)?"原相 ":"")+fmtBytes(phSize(p)))); d.appendChild(tag); }
+    box.appendChild(d);
+  });
+  var tot=state.photos.reduce(function(s,p){return s+phSize(p);},0);
+  var note=$("#photoNote");
+  if(note) note.textContent = state.photos.length? ("已選 "+state.photos.length+" 張，合共 "+fmtBytes(tot)+(LS.get("fhs_keepOriginal",true)?"（保留原相）":"（已壓縮）")) : "";
+}
+
+/* ---------------- save ---------------- */
+$("#frm").addEventListener("submit",function(e){
+  e.preventDefault();
+  var now=new Date().toISOString();
+  var rec={ id:newId(state.type), type:state.type, createdAt:now, updatedAt:now,
+            unit:$("#f_unit").value, area:$("#f_area").value, photos:state.photos.slice() };
+
+  if(state.type==="M1"){
+    if(!$("#f_obs").value.trim()){ toast("請填觀察事實"); $("#f_obs").focus(); return; }
+    if(!$("#f_ca").value.trim()){ toast("請填矯正措施"); $("#f_ca").focus(); return; }
+    if(!$("#f_owner").value.trim()){ toast("請填負責人"); $("#f_owner").focus(); return; }
+    rec.cat=$("#f_cat").value;
+    rec.observation=$("#f_obs").value.trim();
+    rec.measure=evalMeasure();
+    rec.risk=state.risk;
+    rec.stop=state.stop;
+    rec.immediate=$("#f_imm").value.trim();
+    rec.corrective=$("#f_ca").value.trim();
+    rec.owner=$("#f_owner").value.trim();
+    rec.due=$("#f_due").value||addDays(DUE_DAYS[state.risk]);
+    rec.preventive=$("#f_pa").value.trim();
+    rec.status = state.stop ? "Escalated" : "Open";
+    rec.rootCause=""; rec.verify=null;
+    var prior=records.filter(function(r){ return r.type==="M1"&&r.unit===rec.unit&&r.area===rec.area&&r.cat===rec.cat; });
+    rec.repeatCount=prior.length;
+  } else {
+    if(!$("#p_name").value.trim()){ toast("請填流程名稱"); $("#p_name").focus(); return; }
+    if(!$("#p_actual").value.trim()){ toast("請填實際做法"); $("#p_actual").focus(); return; }
+    rec.process=$("#p_name").value.trim();
+    rec.stepNo=$("#p_step").value.trim();
+    rec.asObserved=$("#p_actual").value.trim();
+    rec.asDocumented=$("#p_doc").value.trim();
+    rec.gapType=$("#p_gap").value;
+    rec.hazards=state.hazards.slice();
+    rec.ccpCandidate=state.ccp;
+    rec.handoff=$("#p_handoff").value;
+  }
+
+  dbPut(rec).then(function(ok){
+    if(!ok){ toast("儲存失敗 — 請匯出備份後重試"); return; }
+    records.push(rec); records.sort(function(a,b){ return a.createdAt<b.createdAt?-1:1; });
+    resetForm();
+    updateBadge(); checkBackup();
+    toast(rec.id+" 已儲存");
+  });
+});
+
+function resetForm(){
+  $("#f_obs").value=""; $("#f_imm").value=""; $("#f_ca").value=""; $("#f_owner").value=""; $("#f_pa").value="";
+  $("#m_kind").value=""; $("#m_val").value=""; $("#m_lim").value=""; $("#m_res").innerHTML="";
+  $("#p_name").value=""; $("#p_step").value=""; $("#p_actual").value=""; $("#p_doc").value="";
+  state.photos=[]; state.stop=false; state.ccp=false; state.hazards=[];
+  $("#f_stop").setAttribute("aria-pressed","false"); $("#p_ccp").setAttribute("aria-pressed","false");
+  Array.prototype.forEach.call($("#hazChips").querySelectorAll("button"),function(b){ b.setAttribute("aria-pressed","false"); });
+  renderThumbs(); checkRepeat();
+  state.risk="Major";
+  Array.prototype.forEach.call($("#riskSeg").querySelectorAll("button"),function(b){ b.setAttribute("aria-pressed", b.dataset.v==="Major"?"true":"false"); });
+  $("#f_due").value=addDays(DUE_DAYS[state.risk]);
+}
+
+/* ---------------- open CAPA ---------------- */
+var openFilter="all";
+$("#openFilter").addEventListener("click",function(e){
+  var b=e.target.closest("button"); if(!b) return;
+  openFilter=b.dataset.f;
+  Array.prototype.forEach.call(this.querySelectorAll("button"),function(x){ x.setAttribute("aria-pressed",x===b?"true":"false"); });
+  renderOpen();
+});
+function openItems(){
+  return records.filter(function(r){ return r.type==="M1" && r.status!=="Closed"; });
+}
+function updateBadge(){
+  var n=openItems().length, b=$("#tabBadge");
+  b.hidden = n===0; b.textContent=n;
+}
+function renderOpen(){
+  var list=$("#openList"); list.innerHTML="";
+  var t=todayISO();
+  var arr=openItems().filter(function(r){
+    if(openFilter==="overdue") return r.due && r.due<t;
+    if(openFilter==="critical") return r.risk==="Critical";
+    return true;
+  });
+  arr.sort(function(a,b){ return (a.due||"9999")<(b.due||"9999")?-1:1; });
+  if(!arr.length){ list.appendChild(el("div","empty","冇符合條件嘅待辦項目。")); return; }
+  arr.forEach(function(r){ list.appendChild(itemCard(r,true)); });
+}
+
+function itemCard(r,showDue){
+  var b=el("button","item sv-"+(r.type==="M2"?"M2":r.risk)); b.type="button";
+  var h=el("div","ih");
+  h.appendChild(pill(r));
+  if(r.type==="M1"&&r.stop) h.appendChild(pillTxt("已叫停","crit"));
+  if(r.type==="M1"&&r.repeatCount>0) h.appendChild(pillTxt("重複 ×"+(r.repeatCount+1),"maj"));
+  if(r.type==="M2"&&r.ccpCandidate) h.appendChild(pillTxt("CCP 候選","info"));
+  if(showDue&&r.due){
+    var od=r.due<todayISO();
+    var p=pillTxt((od?"逾期 ":"限期 ")+fmtDate(r.due), od?"crit":"min");
+    h.appendChild(p);
+  }
+  b.appendChild(h);
+  var title = r.type==="M1" ? r.observation : (r.process+(r.stepNo?" · "+r.stepNo:""));
+  var t=el("p","it", title.length>96? title.slice(0,96)+"…" : title);
+  b.appendChild(t);
+  var meta = r.id+"  ·  "+r.unit+"  ·  "+r.area+(r.type==="M1"?"  ·  "+r.cat:"  ·  "+r.gapType);
+  b.appendChild(el("div","im",meta));
+  b.addEventListener("click",function(){ openDetail(r); });
+  return b;
+}
+function pill(r){
+  if(r.type==="M2") return pillTxt("M2 觀察","info");
+  return pillTxt(r.risk, r.risk==="Critical"?"crit":r.risk==="Major"?"maj":"min");
+}
+function pillTxt(txt,cls){ var s=el("span","pill "+cls,txt); return s; }
+
+/* ---------------- detail sheet ---------------- */
+function openDetail(r){
+  var host=$("#sheetHost");
+  var sh=el("div","sheet"); var inr=el("div","sheet-in");
+  var hd=el("div","sheet-hd");
+  hd.appendChild(el("h3",null, r.type==="M1"?"食安發現":"流程觀察"));
+  var cl=el("button","btn sm","關閉"); cl.addEventListener("click",close); hd.appendChild(cl);
+  inr.appendChild(hd);
+  var bd=el("div","sheet-bd");
+
+  function line(k,v){
+    if(!v) return;
+    var w=el("div"); w.style.marginBottom="12px";
+    w.appendChild(el("div","eyebrow",k));
+    var p=el("div",null,v); p.style.fontSize=".9rem"; p.style.marginTop="3px"; p.style.lineHeight="1.55"; p.style.whiteSpace="pre-wrap";
+    w.appendChild(p); bd.appendChild(w);
+  }
+  var top=el("div","ih"); top.style.marginBottom="12px";
+  top.appendChild(pill(r)); if(r.stop) top.appendChild(pillTxt("已叫停","crit"));
+  top.appendChild(pillTxt(r.id,"min"));
+  bd.appendChild(top);
+
+  line("記錄時間", new Date(r.createdAt).toLocaleString("zh-HK"));
+  line("業務單位 / 場地", r.unit+" · "+r.area);
+  if(r.type==="M1"){
+    line("GHP 分類", r.cat);
+    line("觀察事實", r.observation);
+    if(r.measure) line("量測", r.measure.kind+" 實測 "+r.measure.value+"，標準 "+(r.measure.op==="<="?"≤":"≥")+" "+r.measure.limit+" → "+(r.measure.pass?"合格":"超標"));
+    line("即時措施", r.immediate);
+    line("根本原因", r.rootCause);
+    line("矯正措施", r.corrective);
+    line("負責人 / 限期", r.owner+"　·　"+fmtDate(r.due));
+    line("預防措施", r.preventive);
+    line("狀態", r.status);
+    if(r.verify) line("驗證", r.verify.by+" 於 "+fmtDate(r.verify.date)+"：" + r.verify.method);
+  } else {
+    line("流程 / 步驟", r.process+(r.stepNo?" · 步驟 "+r.stepNo:""));
+    line("實際做法", r.asObserved);
+    line("書面 SOP", r.asDocumented);
+    line("落差類型", r.gapType);
+    line("涉及危害", (r.hazards||[]).join("、"));
+    line("CCP / OPRP 候選", r.ccpCandidate?"是":"");
+    line("後續處理", r.handoff);
+  }
+  if(r.photos&&r.photos.length){
+    var pw=el("div"); pw.appendChild(el("div","eyebrow","相片"));
+    var th=el("div","thumbs");
+    r.photos.forEach(function(pp,i){
+      var d=el("div","thumb"); d.style.width="94px"; d.style.height="94px";
+      var im=document.createElement("img"); im.src=phThumb(pp); im.alt="相片 "+(i+1);
+      d.appendChild(im);
+      d.appendChild(el("span","thumb-tag", phFreed(pp)? "Drive" : ((phIsOriginal(pp)?"原相 ":"")+fmtBytes(phSize(pp)))));
+      th.appendChild(d);
+    });
+    pw.appendChild(th); bd.appendChild(pw);
+  }
+
+  /* 儲存 / 下載 / 上載 — M1 M2 都有 */
+  bd.appendChild(el("div","divider"));
+  bd.appendChild(el("div","eyebrow","儲存這一條"));
+  var sr=el("div","row"); sr.style.marginTop="9px";
+
+  var bTxt=el("button","btn sm","下載記錄 .txt");
+  bTxt.addEventListener("click",function(){ saveFile(r.id+".txt", recordToText(r)); });
+  sr.appendChild(bTxt);
+
+  (r.photos||[]).forEach(function(pp,i){
+    var bp=el("button","btn sm","下載相片 "+(i+1)+(phFreed(pp)?"（縮圖·原相在 Drive）":(phIsOriginal(pp)?"（原相）":"")));
+    bp.addEventListener("click",function(){
+      var bl=phBlob(pp);
+      if(!bl){ toast("相片讀取失敗"); return; }
+      saveFile(phFileName(r,pp,i), bl);
+    });
+    sr.appendChild(bp);
+  });
+
+  var bFs=el("button","btn sm","寫入電腦資料夾");
+  bFs.addEventListener("click",function(){
+    if(!dirHandle){ toast("請先喺「資料」頁連結電腦資料夾"); return; }
+    bFs.disabled=true;
+    ensurePerm().then(function(ok){
+      if(!ok) throw {name:"NotAllowedError"};
+      return dirHandle.getDirectoryHandle(safeName(groupOf(r)||"未分類"),{create:true})
+        .then(function(gd){ return gd.getDirectoryHandle(r.type==="M1"?"M1_食安發現":"M2_流程觀察",{create:true}); })
+        .then(function(td){
+          return writeFile(td, r.id+".txt", recordToText(r)).then(function(){
+            return (r.photos||[]).reduce(function(p,pp,i){
+              return p.then(function(){ var bl=phBlob(pp); if(!bl) return null; return writeFile(td, phFileName(r,pp,i), bl); });
+            },Promise.resolve());
+          });
+        });
+    }).then(function(){ r.fs={at:new Date().toISOString()}; return dbPut(r).then(function(){ toast("已寫入資料夾"); renderDrive(); }); },function(e){ toast("寫入失敗："+((e&&e.name)||"錯誤")); })
+      .then(function(){ bFs.disabled=false; });
+  });
+  sr.appendChild(bFs);
+
+  var bDr=el("button","btn sm", r.drive? "再上載到 Drive" : "上載到 Google Drive");
+  bDr.addEventListener("click",function(){
+    if(!driveAvailable){ toast("Google Drive 喺呢個檢視唔可用"); return; }
+    bDr.disabled=true; bDr.textContent="上載中…";
+    driveUploadRecord(r).then(function(){ toast("已上載到 Drive"); renderDrive(); },
+                              function(e){ toast(mcpErrText(e)); })
+      .then(function(){ bDr.disabled=false; bDr.textContent="再上載到 Drive"; });
+  });
+  sr.appendChild(bDr);
+  bd.appendChild(sr);
+  if(r.drive) bd.appendChild(el("div","hint","上次上載 Drive："+new Date(r.drive.at).toLocaleString("zh-HK")));
+
+  if(r.type==="M1" && r.status!=="Closed"){
+    bd.appendChild(el("div","divider"));
+    bd.appendChild(el("div","eyebrow","更新"));
+    var rc=document.createElement("textarea"); rc.placeholder="根本原因（5-Why 或 人／機／料／法／環）"; rc.value=r.rootCause||""; rc.style.marginTop="8px"; rc.style.minHeight="62px";
+    bd.appendChild(rc);
+    var vb=document.createElement("input"); vb.type="text"; vb.placeholder="驗證人"; vb.style.marginTop="8px";
+    var vm=document.createElement("textarea"); vm.placeholder="點驗證矯正措施有效？（例：翌日 3 次抽查溫度全部達標）"; vm.style.marginTop="8px"; vm.style.minHeight="56px";
+    bd.appendChild(vb); bd.appendChild(vm);
+    var row=el("div","row"); row.style.marginTop="12px";
+    var bSave=el("button","btn","儲存根本原因");
+    bSave.addEventListener("click",function(){
+      r.rootCause=rc.value.trim(); r.updatedAt=new Date().toISOString();
+      dbPut(r).then(function(){ toast("已更新"); });
+    });
+    var bClose=el("button","btn pri","驗證並關閉");
+    bClose.addEventListener("click",function(){
+      if(!vb.value.trim()||!vm.value.trim()){ toast("關閉前必須填驗證人同驗證方法"); return; }
+      r.rootCause=rc.value.trim();
+      r.verify={by:vb.value.trim(),date:todayISO(),method:vm.value.trim()};
+      r.status="Closed"; r.updatedAt=new Date().toISOString();
+      dbPut(r).then(function(){ close(); updateBadge(); renderOpen(); toast(r.id+" 已關閉"); });
+    });
+    row.appendChild(bSave); row.appendChild(bClose);
+    bd.appendChild(row);
+  }
+
+  inr.appendChild(bd); sh.appendChild(inr); host.appendChild(sh);
+  sh.addEventListener("click",function(e){ if(e.target===sh) close(); });
+  function close(){ host.innerHTML=""; }
+}
+
+/* ---------------- dashboard ---------------- */
+var dashDays=30;
+$("#dashRangeSeg").addEventListener("click",function(e){
+  var b=e.target.closest("button"); if(!b) return;
+  dashDays=parseInt(b.dataset.d,10);
+  Array.prototype.forEach.call(this.querySelectorAll("button"),function(x){ x.setAttribute("aria-pressed",x===b?"true":"false"); });
+  renderDash();
+});
+function inRange(r){
+  if(!dashDays) return true;
+  return daysBetween(r.createdAt, new Date().toISOString()) <= dashDays;
+}
+function bars(host,map,tone){
+  host.innerHTML="";
+  var keys=Object.keys(map).sort(function(a,b){ return map[b]-map[a]; });
+  if(!keys.length){ host.appendChild(el("div","hint","未有資料。")); return; }
+  var max=map[keys[0]]||1;
+  keys.slice(0,10).forEach(function(k){
+    var w=el("div","bar");
+    w.appendChild(el("span",null,k));
+    w.appendChild(el("span","n",String(map[k])));
+    var tr=el("div","track"); var fl=el("div","fill"); fl.style.width=Math.round(map[k]/max*100)+"%";
+    if(tone) fl.style.background="var(--"+tone+")";
+    tr.appendChild(fl); w.appendChild(tr);
+    host.appendChild(w);
+  });
+}
+function renderDash(){
+  var rs=records.filter(inRange);
+  var m1=rs.filter(function(r){return r.type==="M1";});
+  var m2=rs.filter(function(r){return r.type==="M2";});
+  var t=todayISO();
+  var openAll=openItems();
+  var overdue=openAll.filter(function(r){ return r.due && r.due<t; }).length;
+  var crit=m1.filter(function(r){return r.risk==="Critical";}).length;
+
+  $("#dashRange").textContent = dashDays? ("統計期間：近 "+dashDays+" 日 · 共 "+rs.length+" 條記錄") : ("統計期間：全部 · 共 "+rs.length+" 條記錄");
+
+  var tiles=$("#tiles"); tiles.innerHTML="";
+  [["t-info",m1.length,"食安發現"],["t-crit",crit,"Critical"],["t-warn",overdue,"逾期 CAPA"],["t-ok",m2.length,"流程觀察"]].forEach(function(x){
+    var c=el("div","tile "+x[0]);
+    c.appendChild(el("div","v",String(x[1])));
+    c.appendChild(el("div","l",x[2]));
+    tiles.appendChild(c);
+  });
+
+  var byCat={},byArea={},byRepeat={},byGap={};
+  m1.forEach(function(r){
+    byCat[r.cat]=(byCat[r.cat]||0)+1;
+    byArea[r.area]=(byArea[r.area]||0)+1;
+    var k=r.unit+" · "+r.area+" · "+r.cat;
+    byRepeat[k]=(byRepeat[k]||0)+1;
+  });
+  m2.forEach(function(r){ byGap[r.gapType]=(byGap[r.gapType]||0)+1; });
+  Object.keys(byRepeat).forEach(function(k){ if(byRepeat[k]<2) delete byRepeat[k]; });
+
+  bars($("#barCat"),byCat);
+  bars($("#barArea"),byArea);
+  bars($("#barRepeat"),byRepeat,"critical");
+  bars($("#barGap"),byGap,"amber");
+}
+
+$("#btnReport").addEventListener("click",function(){
+  var rs=records.filter(inRange);
+  var m1=rs.filter(function(r){return r.type==="M1";});
+  var m2=rs.filter(function(r){return r.type==="M2";});
+  var t=todayISO();
+  var openAll=openItems(), overdue=openAll.filter(function(r){return r.due&&r.due<t;});
+  var byCat={}; m1.forEach(function(r){ byCat[r.cat]=(byCat[r.cat]||0)+1; });
+  var topCat=Object.keys(byCat).sort(function(a,b){return byCat[b]-byCat[a];}).slice(0,3);
+  var byRepeat={}; m1.forEach(function(r){ var k=r.unit+"／"+r.area+"／"+r.cat; byRepeat[k]=(byRepeat[k]||0)+1; });
+  var reps=Object.keys(byRepeat).filter(function(k){return byRepeat[k]>=2;}).sort(function(a,b){return byRepeat[b]-byRepeat[a];});
+
+  var L=[];
+  L.push("食品安全巡查摘要（"+(dashDays?"近 "+dashDays+" 日":"全期")+"，截至 "+fmtDate(t)+"）");
+  L.push("");
+  L.push("1. 巡查量：食安發現 "+m1.length+" 宗，流程觀察 "+m2.length+" 項。");
+  L.push("2. 風險分佈：Critical "+m1.filter(function(r){return r.risk==="Critical";}).length
+        +" 宗、Major "+m1.filter(function(r){return r.risk==="Major";}).length
+        +" 宗、Minor "+m1.filter(function(r){return r.risk==="Minor";}).length+" 宗。");
+  L.push("3. 現場叫停：本期行使 "+m1.filter(function(r){return r.stop;}).length+" 次。");
+  L.push("4. CAPA 狀況：未關閉 "+openAll.length+" 項，其中逾期 "+overdue.length+" 項。");
+  if(overdue.length){ L.push("   逾期項目："+overdue.slice(0,5).map(function(r){return r.id+"（"+r.owner+"，限期 "+fmtDate(r.due)+"）";}).join("；")); }
+  L.push("5. 集中出現的問題類別："+(topCat.length?topCat.map(function(c){return c+"（"+byCat[c]+" 宗）";}).join("、"):"無"));
+  L.push("6. 重複發生（同單位／場地／分類 ≥2 次）："+(reps.length?reps.slice(0,5).map(function(k){return k+" ×"+byRepeat[k];}).join("；"):"無"));
+  L.push("");
+  L.push("建議管理層注意：");
+  if(reps.length) L.push("· 重複項顯示問題屬系統性，建議由改 SOP／加培訓入手，而非逐次矯正。");
+  if(overdue.length) L.push("· 逾期 CAPA 需要指定負責人層級跟進，否則記錄本身會成為不利證據。");
+  if(!reps.length&&!overdue.length) L.push("· 本期未見系統性或逾期問題，維持現行巡查頻率。");
+
+  var txt=L.join("\n");
+  showText("月度摘要",txt,"FHS_摘要_"+t+".txt");
+});
+
+function showText(title,txt,filename){
+  var host=$("#sheetHost");
+  var sh=el("div","sheet"); var inr=el("div","sheet-in");
+  var hd=el("div","sheet-hd"); hd.appendChild(el("h3",null,title));
+  var cl=el("button","btn sm","關閉"); cl.addEventListener("click",function(){host.innerHTML="";}); hd.appendChild(cl);
+  inr.appendChild(hd);
+  var bd=el("div","sheet-bd");
+  var ta=document.createElement("textarea"); ta.value=txt; ta.style.minHeight="300px"; ta.style.fontSize=".84rem"; ta.style.lineHeight="1.6";
+  bd.appendChild(ta);
+  var row=el("div","row"); row.style.marginTop="12px";
+  var bc=el("button","btn","複製");
+  bc.addEventListener("click",function(){
+    ta.select();
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(ta.value).then(function(){toast("已複製");},function(){toast("請手動複製");}); }
+    else { try{ document.execCommand("copy"); toast("已複製"); }catch(e){ toast("請手動複製"); } }
+  });
+  row.appendChild(bc);
+  var bd2=el("button","btn pri","儲存為檔案");
+  bd2.addEventListener("click",function(){ saveFile(filename, ta.value); });
+  row.appendChild(bd2);
+  bd.appendChild(row);
+  inr.appendChild(bd); sh.appendChild(inr); host.appendChild(sh);
+  sh.addEventListener("click",function(e){ if(e.target===sh) host.innerHTML=""; });
+}
+
+/* ---------------- data / export ---------------- */
+var downloads=null;
+if(window.claude && window.claude.use){
+  window.claude.use("downloads").then(function(d){ downloads=d; }).catch(function(){ downloads=null; });
+}
+function saveFile(filename,data){
+  if(downloads&&downloads.save){
+    downloads.save({filename:filename,data:data}).then(function(){
+      toast("已儲存 "+filename);
+      LS.set("fhs_lastExport",todayISO()); checkBackup(); renderData();
+    },function(err){
+      var c=err&&err.code;
+      if(c==="declined") toast("已取消");
+      else toast("儲存失敗："+(c||"unknown")+" — 可用「複製」再自行貼上");
+    });
+  } else if(tryBlobDownload(filename,data)){
+    toast("已下載 "+filename);
+    LS.set("fhs_lastExport",todayISO()); checkBackup();
+  } else if(typeof data==="string"){
+    showText("匯出（請自行複製）",data,filename);
+    toast("此環境唔支援直接下載，請複製內容");
+  } else {
+    toast("此環境唔支援下載檔案 — 請改用資料夾同步");
+  }
+}
+/* 非 claude.ai 環境（例如自己 host 喺 GitHub Pages）用返標準下載 */
+function tryBlobDownload(filename,data){
+  try{
+    var bl = (data instanceof Blob)? data : new Blob([data],{type:"application/octet-stream"});
+    var u=URL.createObjectURL(bl);
+    var a=document.createElement("a"); a.href=u; a.download=filename;
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(u); a.remove(); },1500);
+    return true;
+  }catch(e){ return false; }
+}
+function blobToB64(bl){
+  return new Promise(function(res){
+    var fr=new FileReader();
+    fr.onload=function(){ var s=String(fr.result); res(s.slice(s.indexOf(",")+1)); };
+    fr.onerror=function(){ res(null); };
+    fr.readAsDataURL(bl);
+  });
+}
+function b64ToBlob(b64,type){
+  try{
+    var bin=atob(b64), n=bin.length, u=new Uint8Array(n);
+    for(var j=0;j<n;j++) u[j]=bin.charCodeAt(j);
+    return new Blob([u],{type:type||"image/jpeg"});
+  }catch(e){ return null; }
+}
+function serialiseRecords(withOriginals){
+  return records.reduce(function(p,r){
+    return p.then(function(acc){
+      var o={}; for(var k in r) if(Object.prototype.hasOwnProperty.call(r,k)) o[k]=r[k];
+      var ph=(r.photos||[]);
+      return ph.reduce(function(q,pp,i){
+        return q.then(function(list){
+          if(typeof pp==="string"){ list.push({thumb:pp}); return list; }
+          var item={thumb:pp.thumb||"", name:pp.name||"", type:pp.type||"image/jpeg", size:pp.size||0, original:!!pp.original};
+          if(!withOriginals || !pp.blob){ list.push(item); return list; }
+          return blobToB64(pp.blob).then(function(b){ if(b) item.data=b; list.push(item); return list; });
+        });
+      },Promise.resolve([])).then(function(list){ o.photos=list; acc.push(o); return acc; });
+    });
+  },Promise.resolve([]));
+}
+function buildPayload(withOriginals){
+  return serialiseRecords(withOriginals).then(function(rs){
+    return JSON.stringify({app:"FHS Logbook",schema:2,exportedAt:new Date().toISOString(),
+                           includesOriginals:!!withOriginals, units:getUnits(), records:rs});
+  });
+}
+function exportJson(){
+  toast("整緊備份…");
+  buildPayload(true).then(function(txt){
+    if(txt.length > 14*1024*1024){
+      return buildPayload(false).then(function(lite){
+        toast("原相太大，已改出輕量備份（只含縮圖）— 原相請用資料夾同步或 Drive 上載");
+        saveFile("FHS_Logbook_輕量備份_"+todayISO()+".json", lite);
+      });
+    }
+    saveFile("FHS_Logbook_備份_"+todayISO()+".json", txt);
+  });
+}
+function exportJsonLite(){
+  buildPayload(false).then(function(t){ saveFile("FHS_Logbook_輕量備份_"+todayISO()+".json", t); });
+}
+function csvCell(v){ v=(v==null?"":String(v)).replace(/"/g,'""'); return '"'+v+'"'; }
+function csvText(){
+  var head=["id","type","createdAt","unit","area","category","observation","measure","risk","stop","immediate","rootCause","corrective","owner","due","preventive","status","verifiedBy","verifiedAt","verifyMethod","process","stepNo","asObserved","asDocumented","gapType","hazards","ccpCandidate","handoff","photos"];
+  var rows=[head.map(csvCell).join(",")];
+  records.forEach(function(r){
+    rows.push([
+      r.id,r.type,r.createdAt,r.unit,r.area,r.cat||"",r.observation||"",
+      r.measure? (r.measure.kind+" "+r.measure.value+" vs "+(r.measure.op==="<="?"<=":">=")+r.measure.limit+" "+(r.measure.pass?"PASS":"FAIL")) : "",
+      r.risk||"", r.stop?"YES":"", r.immediate||"", r.rootCause||"", r.corrective||"", r.owner||"", r.due||"", r.preventive||"", r.status||"",
+      r.verify?r.verify.by:"", r.verify?r.verify.date:"", r.verify?r.verify.method:"",
+      r.process||"", r.stepNo||"", r.asObserved||"", r.asDocumented||"", r.gapType||"", (r.hazards||[]).join("|"), r.ccpCandidate?"YES":"", r.handoff||"",
+      (r.photos||[]).length
+    ].map(csvCell).join(","));
+  });
+  return rows.join("\r\n");
+}
+function exportCsv(){ saveFile("FHS_Logbook_記錄_"+todayISO()+".csv","﻿"+csvText()); }
+$("#btnExpJson").addEventListener("click",exportJson);
+$("#btnExpLite").addEventListener("click",exportJsonLite);
+$("#btnExpCsv").addEventListener("click",exportCsv);
+
+$("#impFile").addEventListener("change",function(){
+  var f=this.files&&this.files[0]; if(!f) return;
+  var fr=new FileReader();
+  fr.onload=function(){
+    var data;
+    try{ data=JSON.parse(fr.result); }catch(e){ toast("檔案格式唔啱"); return; }
+    var incoming = Array.isArray(data)? data : (data.records||[]);
+    if(!incoming.length){ toast("檔案內冇記錄"); return; }
+    var have={}; records.forEach(function(r){ have[r.id]=true; });
+    var added=0;
+    incoming.reduce(function(p,r){
+      if(!r||!r.id||have[r.id]) return p;
+      return p.then(function(){
+        r.photos=(r.photos||[]).map(function(pp){
+          if(typeof pp==="string") return pp;
+          var o={thumb:pp.thumb||"",name:pp.name||"",type:pp.type||"image/jpeg",size:pp.size||0,original:!!pp.original};
+          if(pp.data){ var bl=b64ToBlob(pp.data,o.type); if(bl) o.blob=bl; }
+          return o;
+        });
+        return dbPut(r).then(function(){ records.push(r); have[r.id]=true; added++; });
+      });
+    },Promise.resolve()).then(function(){
+      records.sort(function(a,b){ return a.createdAt<b.createdAt?-1:1; });
+      if(data.units&&data.units.length) LS.set("fhs_units",data.units);
+      updateBadge(); renderData(); initForm();
+      toast("已合併 "+added+" 條新記錄");
+    });
+  };
+  fr.readAsText(f);
+  this.value="";
+});
+
+$("#btnSaveUnits").addEventListener("click",function(){
+  var arr=$("#unitsBox").value.split("\n").map(function(s){return s.trim();}).filter(Boolean);
+  if(!arr.length){ toast("最少要有一個單位"); return; }
+  LS.set("fhs_units",arr); initForm(); toast("已儲存");
+});
+
+$("#btnWipe").addEventListener("click",function(){
+  if(!confirm("確定清空所有記錄？此操作無法復原，建議先匯出備份。")) return;
+  dbClear().then(function(){ records=[]; updateBadge(); renderData(); renderOpen(); toast("已清空"); });
+});
+
+/* ---------------- storage durability ---------------- */
+var persistState=null;
+function requestPersist(){
+  try{
+    if(navigator.storage && navigator.storage.persist){
+      return navigator.storage.persisted().then(function(p){
+        if(p){ persistState=true; return true; }
+        return navigator.storage.persist().then(function(g){ persistState=!!g; return persistState; });
+      }).catch(function(){ persistState=null; return null; });
+    }
+  }catch(e){}
+  persistState=null;
+  return Promise.resolve(null);
+}
+function renderStorage(){
+  var host=$("#storeStatus"); if(!host) return;
+  host.innerHTML="";
+  var engine = memFallback ? "localStorage（後備，容量細）" : "IndexedDB";
+  var rowsHtml = '<div style="font-size:.86rem;line-height:1.7">'
+    + '<div><b>儲存引擎</b>　'+engine+'</div>'
+    + '<div><b>位置</b>　呢部裝置嘅瀏覽器，唔會上傳去任何伺服器</div>'
+    + '<div id="persistLine"></div><div id="quotaLine"></div></div>';
+  host.innerHTML=rowsHtml;
+
+  var pl=$("#persistLine");
+  if(persistState===true) pl.innerHTML='<b>持久模式</b>　<span class="pill ok">已啟用</span> 系統唔會因為閒置而自動清走';
+  else if(persistState===false) pl.innerHTML='<b>持久模式</b>　<span class="pill maj">未獲批准</span> 加到主畫面並使用幾次後會較易獲批；期間請每週匯出';
+  else pl.innerHTML='<b>持久模式</b>　<span class="pill min">無法確認</span> 請當作可被清除，每週匯出備份';
+
+  refreshQuota().then(function(e){
+    var ql=$("#quotaLine"); if(!ql) return;
+    var pb=fmtBytes(localPhotoBytes()), fb=fmtBytes(freeableBytes());
+    var line='<b>相片佔用</b>　'+pb+'（可釋放 '+fb+'）';
+    if(e&&e.quota){
+      var pct=Math.min(100,Math.round((e.usage||0)/e.quota*100));
+      line='<b>已用容量</b>　'+fmtBytes(e.usage||0)+' / 約 '+fmtBytes(e.quota)+'　('+pct+'%)'
+        +'<div class="bar" style="margin-top:6px"><div class="track"><div class="fill" style="width:'+pct+'%;background:'+(pct>=70?"var(--critical)":"var(--accent)")+'"></div></div></div>'
+        +'<div style="margin-top:4px">'+line+'</div>';
+    }
+    ql.innerHTML=line;
+  });
+}
+
+/* ---------------- Google Drive (mcp capability) ---------------- */
+var mcpNs=null, driveAvailable=null; /* null=未知 */
+if(window.claude && window.claude.use){
+  window.claude.use("mcp").then(function(m){
+    mcpNs=m;
+    if(!m){ driveAvailable=false; renderDrive(); return; }
+    return m.listTools().then(function(r){
+      var s=(r&&r.servers||[]).filter(function(x){ return x.server==="Google Drive"; })[0];
+      driveAvailable = !!(s && s.tools && s.tools.length);
+      driveAuth = s? s.authStatus : "unknown";
+      renderDrive();
+    }).catch(function(){ driveAvailable=false; renderDrive(); });
+  }).catch(function(){ driveAvailable=false; renderDrive(); });
+} else { driveAvailable=false; }
+var driveAuth="unknown";
+
+function mcpErrText(e){
+  var c=e&&e.code;
+  if(c==="server_not_connected") return "未連接 Google Drive — 請喺 claude.ai 設定 → 連接器加入";
+  if(c==="needs_reauth") return "Google Drive 授權已過期 — 請喺 claude.ai 設定 → 連接器重新連接";
+  if(c==="selection_required") return "你有多過一個 Google Drive 連接器，請喺提示中揀一個";
+  if(c==="not_granted"||c==="capability_disabled"||c==="capability_removed") return "呢個檢視唔支援連接器功能，請喺 claude.ai 開啟本工具";
+  if(c==="blocked_by_policy") return "機構政策封鎖咗呢個工具";
+  if(c==="approval_required") return "呢個操作需要批准，暫時未能喺工具內完成";
+  if(c==="not_in_manifest") return "呢個工具唔喺已授權範圍內";
+  if(c==="server_unavailable") return "Google Drive 暫時連唔到，等陣再試";
+  if(c==="tool_error") return "Google Drive 回報失敗："+((e&&e.message)||"");
+  if(c==="cancelled") return "已取消";
+  return "上載失敗："+(c||"未知錯誤");
+}
+function qEsc(s){ return String(s||"").replace(/\\/g,"\\\\").replace(/'/g,"\\'"); }
+function driveFolder(name,parentId){
+  var q="title = '"+qEsc(name)+"' and mimeType = 'application/vnd.google-apps.folder'";
+  if(parentId) q+=" and parentId = '"+qEsc(parentId)+"'";
+  return mcpNs.callTool("Google Drive","search_files",{query:q,pageSize:5,excludeContentSnippets:true})
+    .then(function(res){
+      var p=res&&res.payload, files=(p&&p.files)||[];
+      if(files.length && files[0].id) return files[0].id;
+      var input={title:name, contentMimeType:"application/vnd.google-apps.folder"};
+      if(parentId) input.parentId=parentId;
+      return mcpNs.callTool("Google Drive","create_file",input).then(function(r2){
+        var q2=r2&&r2.payload; if(!q2||!q2.id) throw {code:"upstream_error",message:"建立資料夾失敗"};
+        return q2.id;
+      });
+    });
+}
+function driveUploadRecord(r){
+  if(!mcpNs) return Promise.reject({code:"capability_disabled"});
+  var rootId, groupId, typeId;
+  return driveFolder("FHS_Logbook",null)
+    .then(function(id){ rootId=id; return driveFolder(groupOf(r)||"未分類", rootId); })
+    .then(function(id){ groupId=id; return driveFolder(r.type==="M1"?"M1_食安發現":"M2_流程觀察", groupId); })
+    .then(function(id){
+      typeId=id;
+      return mcpNs.callTool("Google Drive","create_file",{
+        title:r.id+".txt", parentId:typeId, contentMimeType:"text/plain",
+        disableConversionToGoogleType:true, textContent:recordToText(r)
+      });
+    })
+    .then(function(){
+      var ph=(r.photos||[]);
+      return ph.reduce(function(p,pp,i){
+        return p.then(function(){
+          var bl=phBlob(pp); if(!bl) return null;
+          return blobToB64(bl).then(function(b){
+            if(!b) return null;
+            return mcpNs.callTool("Google Drive","create_file",{
+              title:phFileName(r,pp,i), parentId:typeId,
+              contentMimeType:(pp&&pp.type)||"image/jpeg",
+              disableConversionToGoogleType:true, base64Content:b
+            });
+          });
+        });
+      },Promise.resolve());
+    })
+    .then(function(){
+      r.drive={folderId:typeId, at:new Date().toISOString()};
+      r.updatedAt=new Date().toISOString();
+      if(LS.get("fhs_freeAfterUpload",true) && (!dirHandle || r.fs)) freeRecord(r);
+      return dbPut(r).then(function(){ return typeId; });
+    });
+}
+
+/* 釋放本機原相 — 只對已上載 Drive 嘅記錄做 */
+function freeRecord(r){
+  if(!r.drive) return 0;
+  var freed=0;
+  r.photos=(r.photos||[]).map(function(pp){
+    if(typeof pp==="string") return {thumb:pp, freed:true, size:0, type:"image/jpeg"};
+    if(pp.blob){ freed+=pp.size||0; var o={}; for(var k in pp) if(k!=="blob") o[k]=pp[k]; o.freed=true; return o; }
+    return pp;
+  });
+  return freed;
+}
+function localPhotoBytes(){
+  return records.reduce(function(s,r){
+    return s + (r.photos||[]).reduce(function(t,p){ return t + ((p&&typeof p!=="string"&&p.blob)? (p.size||0) : 0); },0);
+  },0);
+}
+function freeableBytes(){
+  return records.reduce(function(s,r){
+    if(!r.drive || (dirHandle && !r.fs)) return s;
+    return s + (r.photos||[]).reduce(function(t,p){ return t + ((p&&typeof p!=="string"&&p.blob)? (p.size||0) : 0); },0);
+  },0);
+}
+function freeAllUploaded(){
+  var targets=records.filter(function(r){ return r.drive && (!dirHandle || r.fs) && (r.photos||[]).some(function(p){ return p&&typeof p!=="string"&&p.blob; }); });
+  if(!targets.length){ toast("冇可以釋放嘅原相（要先上載到 Drive）"); return; }
+  var total=0;
+  targets.reduce(function(p,r){
+    return p.then(function(){ total+=freeRecord(r); r.updatedAt=new Date().toISOString(); return dbPut(r); });
+  },Promise.resolve()).then(function(){
+    toast("已釋放 "+fmtBytes(total)+"，原相仍然喺 Google Drive");
+    renderData(); renderStorage();
+  });
+}
+function renderDrive(){
+  var host=$("#driveBox"); if(!host) return;
+  host.innerHTML="";
+  var info=el("div"); info.style.fontSize=".86rem"; info.style.lineHeight="1.7";
+  if(driveAvailable===null){ info.innerHTML='<span class="pill min">檢查中…</span>'; host.appendChild(info); return; }
+  if(!driveAvailable){
+    info.innerHTML='<div><span class="pill min">未可用</span> 呢個檢視連唔到你的 Google Drive。</div>'
+      +'<div style="color:var(--muted)">請喺 claude.ai 開啟本工具，並喺「設定 → 連接器」加入 Google Drive。</div>';
+    host.appendChild(info); return;
+  }
+  if(driveAuth==="needs_reauth"){
+    info.innerHTML='<div><span class="pill maj">需重新授權</span> 請喺 claude.ai 設定 → 連接器重新連接 Google Drive。</div>';
+    host.appendChild(info); return;
+  }
+  var pend=records.filter(function(r){ return !r.drive; }).length;
+  info.innerHTML='<div><span class="pill ok">可用</span> 會上載到你 Drive 的 <b>FHS_Logbook</b> 資料夾，結構同電腦資料夾一致。</div>'
+    +'<div><b>未上載</b>　'+pend+' 條記錄</div>'
+    +'<div><b>本機原相佔用</b>　'+fmtBytes(localPhotoBytes())+'（其中 '+fmtBytes(freeableBytes())+' 已有 Drive 副本，可釋放）</div>'
+    +'<div style="color:var(--muted)">相片以原相上載；重複上載同一條記錄會產生新檔案，唔會覆蓋。</div>';
+  host.appendChild(info);
+
+  var tg=el("button","tog"); tg.type="button"; tg.style.marginTop="12px"; tg.style.borderColor="var(--line)";
+  tg.setAttribute("aria-pressed", LS.get("fhs_freeAfterUpload",true)?"true":"false");
+  tg.innerHTML='<span class="knob"></span><span><span class="tt">上載後自動釋放本機原相</span><br><span class="td">上載成功後本機只留細相，原相留喺 Drive。如果你連結咗電腦資料夾，會等寫入咗資料夾先釋放。</span></span>';
+  tg.addEventListener("click",function(){
+    var v=!LS.get("fhs_freeAfterUpload",true);
+    LS.set("fhs_freeAfterUpload",v); tg.setAttribute("aria-pressed",v?"true":"false");
+    toast(v?"上載後會自動釋放本機原相":"上載後會保留本機原相");
+  });
+  host.appendChild(tg);
+
+  var row=el("div","row"); row.style.marginTop="12px";
+  var b=el("button","btn pri","上載未上載嘅記錄"); b.id="driveBulkBtn";
+  b.addEventListener("click",function(){
+    var todo=records.filter(function(r){ return !r.drive; });
+    if(!todo.length){ toast("全部記錄已上載過"); return; }
+    b.disabled=true; var done=0, failed=null;
+    todo.reduce(function(p,r){
+      return p.then(function(){
+        if(failed) return null;
+        b.textContent="上載中 "+(done+1)+"/"+todo.length+"…";
+        return driveUploadRecord(r).then(function(){ done++; },function(e){ failed=e; });
+      });
+    },Promise.resolve()).then(function(){
+      b.disabled=false; b.textContent="上載未上載嘅記錄";
+      if(failed) toast(mcpErrText(failed)+(done?("（已成功 "+done+" 條）"):""));
+      else toast("已上載 "+done+" 條記錄到 Drive");
+      renderDrive();
+    });
+  });
+  row.appendChild(b);
+  var bf=el("button","btn","釋放已上載嘅原相");
+  bf.addEventListener("click",freeAllUploaded);
+  row.appendChild(bf);
+  host.appendChild(row);
+}
+
+/* ---------------- 電腦資料夾同步 (File System Access API) ---------------- */
+var dirHandle=null, fsSupported = (typeof window.showDirectoryPicker==="function");
+
+function safeName(s){ return String(s||"未分類").replace(/[\\\/:*?"<>|]/g,"_").replace(/\s+/g," ").trim().slice(0,60); }
+function groupOf(r){
+  var g=LS.get("fhs_group","month");
+  if(g==="unit") return safeName(r.unit);
+  if(g==="cat")  return safeName(r.type==="M1"? r.cat : "M2_流程觀察");
+  return (r.createdAt||"").slice(0,7);
+}
+function dataUrlToBlob(d){
+  try{
+    var i=d.indexOf(","), bin=atob(d.slice(i+1)), n=bin.length, u=new Uint8Array(n);
+    for(var j=0;j<n;j++) u[j]=bin.charCodeAt(j);
+    return new Blob([u],{type:"image/jpeg"});
+  }catch(e){ return null; }
+}
+function recordToText(r){
+  var L=[], sep="────────────────────────────";
+  L.push("FHS Logbook — "+(r.type==="M1"?"食安發現":"流程觀察"));
+  L.push("記錄編號："+r.id);
+  L.push("記錄時間："+new Date(r.createdAt).toLocaleString("zh-HK"));
+  L.push("業務單位："+r.unit);
+  L.push("場地："+r.area);
+  if(r.type==="M1"){
+    L.push("GHP 分類："+r.cat);
+    L.push("風險分級："+r.risk);
+    L.push("現場叫停："+(r.stop?"是":"否"));
+    L.push("狀態："+r.status);
+    L.push(sep); L.push("【觀察事實】"); L.push(r.observation||"");
+    if(r.measure) { L.push(sep); L.push("【量測】");
+      L.push(r.measure.kind+"　實測 "+r.measure.value+"　標準 "+(r.measure.op==="<="?"≤":"≥")+" "+r.measure.limit+"　→ "+(r.measure.pass?"合格":"超標")); }
+    L.push(sep); L.push("【即時措施】"); L.push(r.immediate||"（無）");
+    L.push(sep); L.push("【根本原因】"); L.push(r.rootCause||"（未填）");
+    L.push(sep); L.push("【矯正措施】"); L.push(r.corrective||"");
+    L.push("負責人："+(r.owner||"")+"　限期："+fmtDate(r.due));
+    L.push(sep); L.push("【預防措施】"); L.push(r.preventive||"（無）");
+    L.push(sep); L.push("【驗證】");
+    L.push(r.verify? (r.verify.by+" 於 "+fmtDate(r.verify.date)+"：\n"+r.verify.method) : "（未關閉）");
+  } else {
+    L.push("落差類型："+r.gapType);
+    L.push("涉及危害："+((r.hazards||[]).join("、")||"（無）"));
+    L.push("CCP / OPRP 候選："+(r.ccpCandidate?"是":"否"));
+    L.push("後續處理："+r.handoff);
+    L.push(sep); L.push("【流程 / 步驟】"); L.push(r.process+(r.stepNo?"　步驟 "+r.stepNo:""));
+    L.push(sep); L.push("【實際做法】"); L.push(r.asObserved||"");
+    L.push(sep); L.push("【書面 SOP】"); L.push(r.asDocumented||"（無）");
+  }
+  var ph=(r.photos||[]);
+  L.push(sep);
+  L.push("相片："+(ph.length? ph.map(function(p,i){ return phFileName(r,p,i)+(phFreed(p)?"（原相在 Google Drive）":(phIsOriginal(p)?"（原相）":"")); }).join("、") : "無"));
+  return L.join("\n");
+}
+function writeFile(dir,name,data){
+  return dir.getFileHandle(name,{create:true}).then(function(fh){
+    return fh.createWritable().then(function(w){
+      return Promise.resolve(w.write(data)).then(function(){ return w.close(); });
+    });
+  });
+}
+function doSync(){
+  if(!dirHandle){ toast("未連結資料夾"); return; }
+  var btn=$("#fsSyncBtn"); if(btn){ btn.disabled=true; btn.textContent="寫入中…"; }
+  ensurePerm().then(function(ok){
+    if(!ok){ toast("資料夾權限未批准"); return; }
+    var root=dirHandle, groups={};
+    records.forEach(function(r){ var g=groupOf(r)||"未分類"; (groups[g]=groups[g]||[]).push(r); });
+    var chain=Promise.resolve(), written=0;
+    Object.keys(groups).forEach(function(g){
+      chain=chain.then(function(){ return root.getDirectoryHandle(safeName(g),{create:true}); }).then(function(gd){
+        var sub=Promise.resolve();
+        groups[g].forEach(function(r){
+          sub=sub.then(function(){
+            var folder = r.type==="M1" ? "M1_食安發現" : "M2_流程觀察";
+            return gd.getDirectoryHandle(folder,{create:true}).then(function(td){
+              return writeFile(td, r.id+".txt", recordToText(r)).then(function(){
+                var ps=Promise.resolve();
+                (r.photos||[]).forEach(function(p,i){
+                  var bl=phBlob(p); if(!bl) return;
+                  ps=ps.then(function(){ return writeFile(td, phFileName(r,p,i), bl); });
+                });
+                return ps;
+              }).then(function(){ r.fs={at:new Date().toISOString()}; written++; return dbPut(r); });
+            });
+          });
+        });
+        return sub;
+      });
+    });
+    return chain.then(function(){
+      var payload={app:"FHS Logbook",schema:1,exportedAt:new Date().toISOString(),units:getUnits(),records:records};
+      return writeFile(root,"_完整備份.json",JSON.stringify(payload)).then(function(){
+        return writeFile(root,"_全部記錄.csv","﻿"+csvText());
+      });
+    }).then(function(){
+      LS.set("fhs_lastExport",todayISO());
+      LS.set("fhs_lastSync",new Date().toISOString());
+      toast("已寫入 "+written+" 條記錄到資料夾");
+      checkBackup(); renderFs();
+    });
+  }).catch(function(e){
+    toast("寫入失敗："+(e&&e.name?e.name:"未知錯誤"));
+  }).then(function(){
+    if(btn){ btn.disabled=false; btn.textContent="立即寫入資料夾"; }
+  });
+}
+function ensurePerm(){
+  if(!dirHandle) return Promise.resolve(false);
+  if(!dirHandle.queryPermission) return Promise.resolve(true);
+  return dirHandle.queryPermission({mode:"readwrite"}).then(function(p){
+    if(p==="granted") return true;
+    return dirHandle.requestPermission({mode:"readwrite"}).then(function(q){ return q==="granted"; });
+  }).catch(function(){ return false; });
+}
+function pickFolder(){
+  if(!fsSupported){ toast("此瀏覽器／環境唔支援"); return; }
+  window.showDirectoryPicker({mode:"readwrite",id:"fhs",startIn:"documents"}).then(function(h){
+    dirHandle=h;
+    return metaPut("dirHandle",h);
+  }).then(function(){
+    toast("已連結資料夾："+dirHandle.name);
+    renderFs(); doSync();
+  }).catch(function(e){
+    if(e&&e.name==="AbortError") return;
+    toast("無法連結："+(e&&e.name?e.name:"錯誤")+" — 呢個環境可能封鎖咗資料夾存取");
+    renderFs(true);
+  });
+}
+function renderFs(blocked){
+  var host=$("#fsBox"); if(!host) return;
+  host.innerHTML="";
+  if(!fsSupported||blocked){
+    var w=el("div");
+    w.innerHTML='<div style="font-size:.86rem;line-height:1.65">'
+      +'<span class="pill min">唔可用</span> 呢個瀏覽器／環境唔支援直接寫入電腦資料夾。<br>'
+      +'<span style="color:var(--muted)">需要桌面版 Chrome 或 Edge，而且個頁要行喺 HTTPS。Safari、iPhone、以及被沙盒封鎖嘅嵌入頁都唔支援。</span></div>';
+    host.appendChild(w);
+    var b0=el("button","btn sm","再試一次"); b0.style.marginTop="10px";
+    b0.addEventListener("click",pickFolder); host.appendChild(b0);
+    return;
+  }
+  var info=el("div"); info.style.fontSize=".86rem"; info.style.lineHeight="1.7";
+  if(dirHandle){
+    var ls=LS.get("fhs_lastSync",null);
+    info.innerHTML='<div><b>已連結</b>　<span class="pill ok">'+esc(dirHandle.name)+'</span></div>'
+      +'<div><b>上次寫入</b>　'+(ls? new Date(ls).toLocaleString("zh-HK") : "未寫入過")+'</div>';
+  } else {
+    info.innerHTML='<div><span class="pill info">可用</span> 揀一個電腦資料夾，App 會把每條記錄寫成 .txt，相片寫成 .jpg，並自動分門別類。</div>';
+  }
+  host.appendChild(info);
+
+  var lab=el("div","eyebrow","分類方式"); lab.style.marginTop="12px"; host.appendChild(lab);
+  var sel=document.createElement("select"); sel.style.marginTop="6px";
+  [["month","按年月（2026-08 / M1_食安發現 / …）"],["unit","按業務單位（Yamm / M1_食安發現 / …）"],["cat","按 GHP 分類（溫度控制 / …）"]].forEach(function(o){
+    var op=document.createElement("option"); op.value=o[0]; op.textContent=o[1]; sel.appendChild(op);
+  });
+  sel.value=LS.get("fhs_group","month");
+  sel.addEventListener("change",function(){ LS.set("fhs_group",sel.value); toast("下次寫入會用新分類"); });
+  host.appendChild(sel);
+
+  var row=el("div","row"); row.style.marginTop="12px";
+  var b1=el("button","btn"+(dirHandle?"":" pri"), dirHandle?"更換資料夾":"連結電腦資料夾");
+  b1.addEventListener("click",pickFolder); row.appendChild(b1);
+  if(dirHandle){
+    var b2=el("button","btn pri","立即寫入資料夾"); b2.id="fsSyncBtn";
+    b2.addEventListener("click",doSync); row.appendChild(b2);
+  }
+  host.appendChild(row);
+  var h=el("div","hint","每次寫入都會重新輸出全部記錄（覆蓋同名檔案），所以喺資料夾入面自己加嘅備註檔唔會被刪，但 App 產生嘅檔會被更新。");
+  h.style.marginTop="10px"; host.appendChild(h);
+}
+
+function renderData(){
+  renderStorage();
+  renderFs();
+
+var _bh=$("#btnMakeHash");
+if(_bh && !_bh._bound){ _bh._bound=true;
+  _bh.addEventListener("click",function(){
+    var v=$("#newPw").value;
+    if(!v){ toast("請輸入新密碼"); return; }
+    (window.FHS_sha256? window.FHS_sha256(v) : Promise.reject()).then(function(h){
+      var out=$("#hashOut"); out.hidden=false;
+      out.value='var FHS_GATE_HASH = "'+h+'";  /* 密碼：'+v+' */';
+      out.select(); toast("已產生，請複製並換入檔案");
+    },function(){ toast("此瀏覽器唔支援產生雜湊"); });
+  });
+}
+
+  renderDrive();
+  var tg=$("#togOriginal");
+  if(tg){
+    tg.setAttribute("aria-pressed", LS.get("fhs_keepOriginal",true)?"true":"false");
+    if(!tg._bound){ tg._bound=true;
+      tg.addEventListener("click",function(){
+        var v=!LS.get("fhs_keepOriginal",true);
+        LS.set("fhs_keepOriginal",v); tg.setAttribute("aria-pressed",v?"true":"false");
+        toast(v?"之後影嘅相會保留原相":"之後影嘅相會壓縮至 1600px");
+      });
+    }
+  }
+  $("#unitsBox").value=getUnits().join("\n");
+  var le=LS.get("fhs_lastExport",null);
+  $("#lastExp").textContent = le? ("上次匯出："+fmtDate(le)+"（"+daysBetween(le,todayISO())+" 日前）") : "從未匯出。";
+  $("#recCount").textContent = "共 "+records.length+" 條記錄"+(memFallback?"（注意：本裝置未能使用 IndexedDB，已改用較細容量嘅本機儲存，請更頻密匯出）":"");
+  var host=$("#allList"); host.innerHTML="";
+  var arr=records.slice().reverse().slice(0,40);
+  if(!arr.length){ host.appendChild(el("div","empty","未有記錄。")); return; }
+  arr.forEach(function(r){ host.appendChild(itemCard(r,r.type==="M1"&&r.status!=="Closed")); });
+}
+
+/* ---------------- banners: 備份 / 收工上載 / 空間 ---------------- */
+var quotaInfo=null;
+function refreshQuota(){
+  try{
+    if(navigator.storage && navigator.storage.estimate){
+      return navigator.storage.estimate().then(function(e){ quotaInfo=e; return e; }).catch(function(){ return null; });
+    }
+  }catch(e){}
+  return Promise.resolve(null);
+}
+function goTab(v){ var t=document.querySelector('.tab[data-v="'+v+'"]'); if(t) t.click(); }
+function mkBanner(text,btnLabel,onClick,tone){
+  var b=el("div","banner"); b.appendChild(el("span",null,text));
+  if(btnLabel){ var x=el("button","btn sm",btnLabel); x.addEventListener("click",onClick); b.appendChild(x); }
+  if(tone==="crit"){ b.style.borderColor="var(--critical)"; b.style.background="var(--critical-soft)"; b.style.color="var(--critical)"; }
+  return b;
+}
+function checkBackup(){
+  var host=$("#backupBanner"); if(!host) return;
+  host.innerHTML=""; host.removeAttribute("class"); host.style.marginBottom="";
+  var items=[];
+
+  var pend=records.filter(function(r){ return !r.drive; }).length;
+  if(driveAvailable && pend>0){
+    items.push(mkBanner("有 "+pend+" 條記錄未上載到 Drive。收工前撳一次就得。","去上載",function(){ goTab("data"); }));
+  }
+
+  var le=LS.get("fhs_lastExport",null);
+  if(records.length>0 && (!le || daysBetween(le,todayISO())>=7)){
+    items.push(mkBanner(le? ("已經 "+daysBetween(le,todayISO())+" 日冇備份。") : "你有記錄但從未備份。","立即備份",exportJson));
+  }
+
+  if(quotaInfo && quotaInfo.quota){
+    var pct = quotaInfo.usage/quotaInfo.quota;
+    if(pct>=0.7){
+      var f=freeableBytes();
+      items.push(mkBanner("本機儲存已用 "+Math.round(pct*100)+"%。"+(f? "有 "+fmtBytes(f)+" 原相已有 Drive 副本，可以釋放。":"請先上載到 Drive 再釋放。"),
+        f?"釋放空間":null, freeAllUploaded, "crit"));
+    }
+  }
+
+  if(!items.length){ host.hidden=true; return; }
+  host.hidden=false;
+  host.style.display="flex"; host.style.flexDirection="column"; host.style.gap="10px"; host.style.marginBottom="14px";
+  items.forEach(function(x){ host.appendChild(x); });
+}
+
+/* ---------------- boot ---------------- */
+initForm();
+requestPersist();
+openDB().then(dbAll).then(function(rs){
+  records=(rs||[]).sort(function(a,b){ return a.createdAt<b.createdAt?-1:1; });
+  updateBadge(); checkRepeat();
+  refreshQuota().then(checkBackup);
+  return metaGet("dirHandle").then(function(h){ if(h){ dirHandle=h; renderFs(); } });
+});
+})();
+</script>
+
+
+<script>
+/* ===== 通行密碼閘 =====
+   要改密碼：喺 App 內「資料 → 更改通行密碼」產生新一行，
+   然後用文字編輯器換走下面呢一行，再重新上傳檔案。 */
+var FHS_GATE_HASH = "910b64a56ad14b248714f6ce7b9566610acbee831e40ac6b75e40940c297294f";  /* 預設密碼：mira2026 */
+(function(){
+  "use strict";
+  function sha256(s){
+    var enc=new TextEncoder().encode(s);
+    return crypto.subtle.digest("SHA-256",enc).then(function(buf){
+      return Array.prototype.map.call(new Uint8Array(buf),function(b){return ("0"+b.toString(16)).slice(-2);}).join("");
+    });
+  }
+  window.FHS_sha256 = sha256;
+  var gate=document.getElementById("gate");
+  if(!FHS_GATE_HASH){ gate.remove(); return; }
+  var okAlready=false;
+  try{ okAlready = sessionStorage.getItem("fhs_gate")==="1"; }catch(e){}
+  if(okAlready){ gate.remove(); return; }
+  document.body.classList.add("locked");
+  gate.hidden=false;
+  var tries=0;
+  document.getElementById("gateForm").addEventListener("submit",function(e){
+    e.preventDefault();
+    var msg=document.getElementById("gateMsg");
+    var v=document.getElementById("gatePw").value;
+    sha256(v).then(function(h){
+      if(h===FHS_GATE_HASH){
+        try{ sessionStorage.setItem("fhs_gate","1"); }catch(err){}
+        document.body.classList.remove("locked");
+        gate.remove();
+      } else {
+        tries++;
+        msg.hidden=false;
+        msg.textContent = tries>=5 ? "密碼錯誤，請稍候再試。" : "密碼錯誤。";
+        document.getElementById("gatePw").value="";
+        if(tries>=5){
+          var btn=document.querySelector("#gateForm button");
+          btn.disabled=true; setTimeout(function(){ btn.disabled=false; tries=0; msg.hidden=true; },15000);
+        }
+      }
+    });
+  });
+  document.getElementById("gatePw").focus();
+})();
+</script>
+
+</body>
+</html>
